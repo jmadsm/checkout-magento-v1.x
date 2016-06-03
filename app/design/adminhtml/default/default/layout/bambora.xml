@@ -1,0 +1,20 @@
+﻿<?xml version="1.0"?>
+<!--
+/**
+ * Copyright Bambora | Checkout, (c) 2016.
+ * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
+ * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
+ */
+-->
+<layout version="1.0">
+
+  <default module="page" translate="label">
+    <label>All Pages</label>
+    <reference name="head">
+      <action method="addCss">
+        <stylesheet>css/bamboraadmin.css</stylesheet>
+      </action>
+    </reference>
+  </default>
+
+</layout>
