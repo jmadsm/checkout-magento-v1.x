@@ -108,7 +108,7 @@
               <show_in_store>0</show_in_store>
             </immediateredirecttoaccept>
             <addfeetoshipping translate="label comment">
-              <label><![CDATA[<b>Add payment fee to the "shipping and handling amount":</b>]]></label>
+              <label><![CDATA[<b>Add payment fee to the shipping and handling amount:</b>]]></label>
               <comment><![CDATA[If the customer pays for the payment fee the amount will not be displayed on the order confirmation. However it is possible to add the amount to the shipping and handling amount displayed at the bottom of the order confirmation.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>

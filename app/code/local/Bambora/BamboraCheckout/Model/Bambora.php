@@ -56,7 +56,7 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
         
         if(!isset($getPaymentTypesResponceJson))
         {
-            Mage::getSingleton('core/session')->addError(Mage::helper("bamboracheckout")->__("An error occured. Please contact the shops owner"));
+            Mage::getSingleton('core/session')->addError(Mage::helper("bamboracheckout")->__("An error occured. Please contact the shop owner"));
             $errorMessage = new Exception("No response from Bambora backend"); 
             Mage::logException($errorMessage);
             Mage::throwException($errorMessage);  
@@ -64,7 +64,7 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
             
         if (!$getPaymentTypesResponceJson['meta']['result'])
         {
-            Mage::getSingleton('core/session')->addError(Mage::helper("bamboracheckout")->__("An error occured. Please contact the shops owner"));
+            Mage::getSingleton('core/session')->addError(Mage::helper("bamboracheckout")->__("An error occured. Please contact the shop owner"));
             $errorMessage = new Exception("An error occured - ".$getPaymentTypesResponceJson["meta"]["message"]["merchant"]); 
             Mage::logException($errorMessage);
             Mage::throwException($errorMessage);  
@@ -227,9 +227,9 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
         
         if(!$setCheckoutResponseJson["meta"]["result"])
         {
-            Mage::getSingleton('core/session')->addError(Mage::helper("bamboracheckout")->__("An error occured. Please contact the shops owner"));
+            Mage::getSingleton('core/session')->addError(Mage::helper("bamboracheckout")->__("An error occured. Please contact the shop owner"));
             $errorMessage = new Exception(Mage::helper("bamboracheckout")->__("An error occured - ").$setCheckoutResponseJson["meta"]["message"]["merchant"]); 
-            Mage::log($errorMessage, Zend_Log::ERR);
+            Mage::log($errorMessage);
             Mage::throwException($errorMessage);  
         
         }

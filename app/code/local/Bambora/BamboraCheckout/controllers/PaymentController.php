@@ -97,6 +97,7 @@ class Bambora_BamboraCheckout_PaymentController extends Mage_Core_Controller_Fro
         if($this->_order->getStatus() == Mage_Sales_Model_Order::STATE_PROCESSING)
         {
             $this->getResponse()->setHttpResponseCode(200);
+            $this->getResponse()->setHeader("Description","Already Processing",true);
             return $this->_response;
         }
         

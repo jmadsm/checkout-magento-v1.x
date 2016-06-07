@@ -1,17 +1,22 @@
 <_>
-   <form_key>DmLRnrBkVnDX1lfY</form_key>
+   <form_key>5olm8JtwNZGcmlWg</form_key>
    <name>Bambora_Checkout</name>
    <channel>community</channel>
    <version_ids>
       <version_ids>2</version_ids>
    </version_ids>
    <summary>An online payment gateway</summary>
-   <description>Accept payments for your products online </description>
-   <license>Bambora opensource</license>
-   <license_uri/>
+   <description>Seamless shopping experience with high conversion rate.
+
+Bambora Checkout is quick and easy to set up. While your customers enjoy a convenient shopping experience, you get an effective, practical solution with a high conversion rate.
+
+http://www.bambora.com/
+</description>
+   <license>Bambora</license>
+   <license_uri>http://www.bambora.com/</license_uri>
    <version>1.0.0</version>
    <stability>alpha</stability>
-   <notes>First release</notes>
+   <notes>Initial release</notes>
    <authors>
       <name>
          <name>Bambora</name>
@@ -40,7 +45,7 @@
             <max/>
          </max>
          <files>
-            <files>                     </files>
+            <files>                        </files>
          </files>
       </package>
       <extension>

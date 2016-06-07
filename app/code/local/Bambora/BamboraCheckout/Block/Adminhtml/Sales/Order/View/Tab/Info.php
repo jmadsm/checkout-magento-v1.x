@@ -124,15 +124,15 @@ class Bambora_BamboraCheckout_Block_Adminhtml_Sales_Order_View_Tab_Info extends 
    
             //Transaction Fee amount
             $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Transaction fee:") . "</td>";
-            $res .= "<td>" .Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["feeamount"],$minorUnits),false,true). "</td></tr>";
+            $res .= "<td>" .Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["feeamount"],$minorUnits),true,false). "</td></tr>";
 
             //Total Captured
             $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Captured:") . "</td>";
-            $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["captured"],$minorUnits),false,true). "</td></tr>";
+            $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["captured"],$minorUnits),true,false). "</td></tr>";
 
             //Total Refunded
             $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Refunded:") . "</td>";
-            $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["credited"],$minorUnits),false,true). "</td></tr>";
+            $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["credited"],$minorUnits),true,false). "</td></tr>";
 
             $res .= "</table><br>";
     		
