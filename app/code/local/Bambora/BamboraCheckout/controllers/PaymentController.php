@@ -32,7 +32,7 @@ class Bambora_BamboraCheckout_PaymentController extends Mage_Core_Controller_Fro
         }
 
         $this->_order->setState(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT, Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,
-            Mage::helper("bamboracheckout")->__("The Order is placed using Bambora Checkout, and is now awaiting payment.")
+            Mage::helper("bamboracheckout")->__("The Order is placed using Bambora Checkout&#44; and is now awaiting payment.")
          );
         $this->_order->save();
         
@@ -64,7 +64,7 @@ class Bambora_BamboraCheckout_PaymentController extends Mage_Core_Controller_Fro
         }
         
         
-        $bamboraMerchantProvider = Mage::getModel("bamboraproviders/merchantprovider");
+        $bamboraMerchantProvider = Mage::getModel("bamboraproviders/merchant");
 
         $transactionInfomation = $bamboraMerchantProvider->gettransactionInformation($_GET["txnid"]);
 

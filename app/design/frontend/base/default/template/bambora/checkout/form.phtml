@@ -3,13 +3,18 @@ $paymentCards = $this->getPaymentCards();
 
 echo '<div class="form-list" id="payment_form_'.$this->getMethodCode().'" style="display:none">';
 echo '<p class="bambora_formtext">'.$this->__("You have chosen to pay for the order using Bambora Checkout.").'</p>';
-if(count($paymentCards) > 0)
+if(is_array($paymentCards))
 {
-  echo '<p class="bambora_formtext_image">'.$this->__("The shop accepts the following payment types").'</p>';
-  foreach($paymentCards as $paymentcard)
+  if(count($paymentCards) > 0)
   {
-	  echo '<img class="bambora_form_paymentcard" src="https://d3r1pwhfz7unl9.cloudfront.net/paymentlogos/'.$paymentcard.'.png" />';
+    echo '<p class="bambora_formtext_image">'.$this->__("The shop accepts the following payment types").'</p>';
+    foreach($paymentCards as $paymentcard)
+    {
+	    echo '<img class="bambora_form_paymentcard" src="https://d3r1pwhfz7unl9.cloudfront.net/paymentlogos/'.$paymentcard.'.png" />';
+    }
   }
+}else{
+  echo '<p class="bambora_formtext_image">'.$paymentCards.'</p>';
 }
 echo '</div>';
 ?>

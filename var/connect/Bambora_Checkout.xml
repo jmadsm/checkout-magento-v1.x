@@ -1,5 +1,5 @@
 <_>
-   <form_key>5olm8JtwNZGcmlWg</form_key>
+   <form_key>2hi11xLBP7xl2FMt</form_key>
    <name>Bambora_Checkout</name>
    <channel>community</channel>
    <version_ids>
@@ -14,7 +14,7 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.0.0</version>
+   <version>1.0.1</version>
    <stability>alpha</stability>
    <notes>Initial release</notes>
    <authors>
@@ -45,7 +45,7 @@ http://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                        </files>
+            <files>                             </files>
          </files>
       </package>
       <extension>
@@ -117,4 +117,8 @@ http://www.bambora.com/
          <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>

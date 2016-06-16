@@ -4,7 +4,7 @@
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
  * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
  */
-class Bambora_BamboraCheckout_Model_BamboraProviders_AssetsProvider extends Bambora_BamboraCheckout_Model_BamboraProviders_BaseProvider
+class Bambora_BamboraCheckout_Model_BamboraProviders_Assets extends Bambora_BamboraCheckout_Model_BamboraProviders_Base
 {
     public function getcheckoutpaymentwindowjs()
     {
@@ -12,7 +12,5 @@ class Bambora_BamboraCheckout_Model_BamboraProviders_AssetsProvider extends Bamb
 
         return $url;   
     }
-
-
 }
 ?>

@@ -61,84 +61,92 @@ class Bambora_BamboraCheckout_Block_Adminhtml_Sales_Order_View_Tab_Info extends 
     {
         return parent::getGiftmessageHtml();
     }
+    
+    private function checkBamboraModule()
+    {
+        $modules = Mage::getConfig()->getNode('modules')->children();
+        $modulesArray = (array)$modules;
+        $bamboraModule = $modulesArray['Bambora_BamboraCheckout'];
 
+        return isset($bamboraModule) && $bamboraModule->is('active');
+    }
+    
+    
 
     public function getPaymentHtml()
     {
+        $res = $this->getChildHtml('order_payment');
+        //Check for Bambora Module
+        if(!$this->checkBamboraModule())
+        {
+            return $res;
+        }
+        
+        
         $payment = $this->getOrder()->getPayment();
         
         $transactionId = $payment->getAuthorizationTransaction()!= null ? $payment->getAuthorizationTransaction()->getTxnId() : $payment->getLastTransId();
         if(!isset($transactionId))
         {
-            $res = $this->getChildHtml('order_payment');
-            $res .= "<p><b>".Mage::helper("bamboracheckout")->__("No transaction was not found")."</b></p>";
-
             return $res;
-        }
-
-        $merchantProvider = Mage::getModel("bamboraproviders/merchantprovider");
+        }    
+        
+        $merchantProvider = Mage::getModel("bamboraproviders/merchant");
 
         $bamboraTransaction = $merchantProvider->gettransactionInformation($transactionId);
         $bamboraTransactionsJson = json_decode($bamboraTransaction, true);
- 
-        if (!$bamboraTransactionsJson["meta"]["result"]) {
-            
-            $res = $this->getChildHtml('order_payment');
-            $res .= "<p><b>Bambora: ".$bamboraTransactionsJson["meta"]["message"]["merchant"]."</b></p>";
+        
+        if (!isset($bamboraTransactionsJson) || !$bamboraTransactionsJson["meta"]["result"]) 
+        {   
             return $res;
         }
 
-            $bamboraCurrency = Mage::helper("bamboracheckout/bambora_currency");
-            $currency = $bamboraTransactionsJson["transaction"]["currency"]["code"];
-            $minorUnits = $bamboraCurrency->getCurrencyMinorunits($currency);
-            
-            // Payment has been made to this order
-            $res = '<table class="bambora_paymentinfo" border="0" width="100%">';
-            $res .= '<tr><td colspan="2"><p class="bambora_title">'. Mage::helper('bamboracheckout')->__("Bambora Checkout") . '</p></div></td></tr>';
-            //Transaction ID
-            $res .= "<tr><td width='150'>" . Mage::helper('bamboracheckout')->__('Transaction ID:') . "</td>";
-            $res .= "<td>" . $transactionId. "</td></tr>";
+        $bamboraCurrency = Mage::helper("bamboracheckout/bambora_currency");
+        $currency = $bamboraTransactionsJson["transaction"]["currency"]["code"];
+        $minorUnits = $bamboraCurrency->getCurrencyMinorunits($currency);
         
-            //Amount
-            $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__('Amount:') . "</td>";
-            $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["authorized"],$minorUnits),true,false). "</td></tr>";
+        // Payment has been made to this order
+        $res = '<table class="bambora_paymentinfo" border="0" width="100%">';
+        $res .= '<tr><td colspan="2"><p class="bambora_title">'. Mage::helper('bamboracheckout')->__("Bambora Checkout") . '</p></div></td></tr>';
+        //Transaction ID
+        $res .= "<tr><td width='150'>" . Mage::helper('bamboracheckout')->__('Transaction ID:') . "</td>";
+        $res .= "<td>" . $transactionId. "</td></tr>";
         
-            //Currency Code
-            $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Currency code:") . "</td>";
-            $res .= "<td>" . $bamboraTransactionsJson["transaction"]["currency"]["code"] . "</td></tr>";
- 
+        //Amount
+        $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__('Amount:') . "</td>";
+        $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["authorized"],$minorUnits),true,false). "</td></tr>";
 
-            //Date
-            $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Transaction date:") . "</td>";
-            $res .= "<td>" .Mage::helper('core')->formatDate($bamboraTransactionsJson["transaction"]["createddate"], 'medium', false) . "</td></tr>";
+        //Date
+        $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Transaction date:") . "</td>";
+        $res .= "<td>" .Mage::helper('core')->formatDate($bamboraTransactionsJson["transaction"]["createddate"], 'medium', false) . "</td></tr>";
 
-            //Card Type with logo
-            $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Card type:") . "</td>";
-            $res .= "<td>".$bamboraTransactionsJson["transaction"]["information"]["paymenttypes"][0]["displayname"];
-            $res .= $this->printLogo($bamboraTransactionsJson["transaction"]["information"]["paymenttypes"][0]["groupid"])."</td></tr>";
+        //Card Type with logo
+        $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Card type:") . "</td>";
+        $res .= "<td>".$bamboraTransactionsJson["transaction"]["information"]["paymenttypes"][0]["displayname"];
+        $res .= $this->printLogo($bamboraTransactionsJson["transaction"]["information"]["paymenttypes"][0]["groupid"])."</td></tr>";
 
 
-            //Truncated Cardnumber
-            $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Card number:") . "</td>";
-            $res .= "<td>" . $bamboraTransactionsJson["transaction"]["information"]["primaryaccountnumbers"][0]["number"] . "</td></tr>";
-   
-            //Transaction Fee amount
-            $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Transaction fee:") . "</td>";
-            $res .= "<td>" .Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["feeamount"],$minorUnits),true,false). "</td></tr>";
+        //Truncated Cardnumber
+        $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Card number:") . "</td>";
+        $res .= "<td>" . $bamboraTransactionsJson["transaction"]["information"]["primaryaccountnumbers"][0]["number"] . "</td></tr>";
+        
+        //Transaction Fee amount
+        $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Transaction fee:") . "</td>";
+        $res .= "<td>" .Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["feeamount"],$minorUnits),true,false). "</td></tr>";
 
-            //Total Captured
-            $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Captured:") . "</td>";
-            $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["captured"],$minorUnits),true,false). "</td></tr>";
+        //Total Captured
+        $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Captured:") . "</td>";
+        $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["captured"],$minorUnits),true,false). "</td></tr>";
 
-            //Total Refunded
-            $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Refunded:") . "</td>";
-            $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["credited"],$minorUnits),true,false). "</td></tr>";
+        //Total Refunded
+        $res .= "<tr><td>" . Mage::helper('bamboracheckout')->__("Refunded:") . "</td>";
+        $res .= "<td>".Mage::helper('core')->currency($bamboraCurrency->convertPriceFromMinorUnits($bamboraTransactionsJson["transaction"]["total"]["credited"],$minorUnits),true,false). "</td></tr>";
 
-            $res .= "</table><br>";
-    		
-    		$res .= "<a href='https://merchant.bambora.com' target='_blank'>" . Mage::helper('bamboracheckout')->__("Go to the Bambora administration to handle your transactions") . "</a>";
-    		$res .= "<br><br>";
-         
+        $res .= "</table><br>";
+        
+        $res .= "<a href='https://merchant.bambora.com' target='_blank'>" . Mage::helper('bamboracheckout')->__("Go to the Bambora administration to handle your transactions") . "</a>";
+        $res .= "<br><br>";
+        
 		return $res;
     }
 

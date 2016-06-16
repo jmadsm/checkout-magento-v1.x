@@ -37,13 +37,13 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
     //
     public function __construct()
     {
-        $this->bamboraCurrency = Mage::helper("bamboracheckout/bambora_currency");
+        $this->bamboraCurrency = Mage::helper('bamboracheckout/bambora_currency');
 
     }
 
     public function getMerchantPaymentcards()
     {    
-        $bamboraMerchantProvider = Mage::getModel("bamboraproviders/merchantprovider");
+        $bamboraMerchantProvider = Mage::getModel('bamboraproviders/merchant');
         $currencyCode = $this->getQuote()->getBaseCurrencyCode();
 
         $grandTotal= $this->getQuote()->getGrandTotal();
@@ -56,18 +56,16 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
         
         if(!isset($getPaymentTypesResponceJson))
         {
-            Mage::getSingleton('core/session')->addError(Mage::helper("bamboracheckout")->__("An error occured. Please contact the shop owner"));
             $errorMessage = new Exception("No response from Bambora backend"); 
             Mage::logException($errorMessage);
-            Mage::throwException($errorMessage);  
+            return Mage::helper('bamboracheckout')->__("An error occured. Please contact the shop owner");
         }
             
         if (!$getPaymentTypesResponceJson['meta']['result'])
         {
-            Mage::getSingleton('core/session')->addError(Mage::helper("bamboracheckout")->__("An error occured. Please contact the shop owner"));
-            $errorMessage = new Exception("An error occured - ".$getPaymentTypesResponceJson["meta"]["message"]["merchant"]); 
+            $errorMessage = new Exception("An error occured - ".$getPaymentTypesResponceJson['meta']['message']['merchant']); 
             Mage::logException($errorMessage);
-            Mage::throwException($errorMessage);  
+            return Mage::helper('bamboracheckout')->__("An error occured. Please contact the shop owner");
         }  
 
         foreach($getPaymentTypesResponceJson['paymentcollections'] as $payment )
@@ -116,7 +114,7 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
     public function getOrder()
     {
         $session = $this->getCheckout();
-        $order = Mage::getModel("sales/order");
+        $order = Mage::getModel('sales/order');
         $order->loadByIncrementId($session->getLastRealOrderId());
         return $order;
         
@@ -138,20 +136,20 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
         $minorUnits = $this->bamboraCurrency->getCurrencyMinorUnits($this->getOrder()->getOrderCurrencyCode());
         $totalAmountMinorUnits = $this->bamboraCurrency->convertPriceToMinorUnits($this->getOrder()->getGrandTotal(), $minorUnits);
 
-        $checkoutRequest = Mage::getModel("bamboramodels/bamboracheckoutrequest");
+        $checkoutRequest = Mage::getModel('bamboramodels/checkoutrequest');
 
         $checkoutRequest->capturemulti = true;      
 
-        $bamboraCustomer = Mage::getModel("bamboramodels/bamboracustomer");
+        $bamboraCustomer = Mage::getModel('bamboramodels/customer');
         $bamboraCustomer->email = $email;
         $bamboraCustomer->phonenumber =$billing->getTelephone();
         $bamboraCustomer->phonenumbercountrycode = $billing->getCountryId();
         
         $checkoutRequest->customer = $bamboraCustomer;
         $checkoutRequest->instantcaptureamount = $this->getConfigData('instantcapture', $storeId) == 0 ? 0 : $totalAmountMinorUnits;
-        $checkoutRequest->language = Mage::app()->getLocale()->getLocaleCode();
+        $checkoutRequest->language = str_replace('_','-', Mage::app()->getLocale()->getLocaleCode());
 
-        $bamboraBillingAddress = Mage::getModel("bamboramodels/bamboraaddress");
+        $bamboraBillingAddress = Mage::getModel('bamboramodels/address');
         
         $bamboraBillingAddress->att = "";
         $bamboraBillingAddress->city = $billing->getCity();
@@ -161,7 +159,7 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
         $bamboraBillingAddress->street = $billing->getStreet(-1);
         $bamboraBillingAddress->zip = $billing->getPostcode();
 
-        $bamboraOrder = Mage::getModel("bamboramodels/bamboraorder");
+        $bamboraOrder = Mage::getModel('bamboramodels/order');
         $bamboraOrder->billingaddress = $bamboraBillingAddress;
         $bamboraOrder->currency = $order->getOrderCurrencyCode();
 
@@ -170,7 +168,7 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
         $lineNumber = 1;
         foreach($items as $item)
         {
-            $line = Mage::getModel("bamboramodels/bamboraorderline");
+            $line = Mage::getModel('bamboramodels/orderline');
             $line->description = $item->getDescription() != null ? $item->getDescription() : "";
             $line->id = $item->getSku();
             $line->linenumber = $lineNumber;
@@ -179,7 +177,7 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
             $line->totalprice =  $this->bamboraCurrency->convertPriceToMinorUnits($item->getBaseRowTotal(),$minorUnits);
             $line->totalpriceinclvat = $this->bamboraCurrency->convertPriceToMinorUnits($item->getBaseRowTotalInclTax(),$minorUnits);
             $line->totalpricevatamount = $this->bamboraCurrency->convertPriceToMinorUnits($item->getBaseTaxAmount(),$minorUnits); 
-            $line->unit = "";
+            $line->unit = '';
             $line->unitprice = $this->bamboraCurrency->convertPriceToMinorUnits($item->getBasePrice(),$minorUnits);
             $line->unitpriceinclvat = $this->bamboraCurrency->convertPriceToMinorUnits($item->getBasePriceInclTax(),$minorUnits);
             $line->unitpricevatamount = $this->bamboraCurrency->convertPriceToMinorUnits($item->getBasePriceInclTax() - $item->getBasePrice(),$minorUnits);
@@ -191,7 +189,7 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
         $bamboraOrder->lines = $bamboraOrderLines;
         $bamboraOrder->ordernumber = $order->getIncrementId();
 
-        $bamboraShippingAddress = Mage::getModel("bamboramodels/bamboraaddress");
+        $bamboraShippingAddress = Mage::getModel('bamboramodels/address');
         $bamboraShippingAddress->att = "";
         $bamboraShippingAddress->city = $shipping->getCity();
         $bamboraShippingAddress->country = $shipping->getCountryModel()->getIso3Code();
@@ -206,31 +204,33 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
 
         $checkoutRequest->order = $bamboraOrder;
 
-        $bamboraUrl = Mage::getModel("bamboramodels/bamboraurl");
+        $bamboraUrl = Mage::getModel('bamboramodels/url');
         $bamboraUrl->accept = Mage::getUrl('bamboracheckout/payment/success', array('_nosid' => true));
         $bamboraUrl->decline = Mage::getUrl('bamboracheckout/payment/cancel', array('_nosid' => true));
-        $bamboraCallback = Mage::getModel("bamboramodels/bamboracallback");
+        $bamboraCallback = Mage::getModel('bamboramodels/callback');
         $bamboraCallback->url = Mage::getUrl('bamboracheckout/payment/callback', array('_nosid' => true));
         $bamboraUrl->callbacks = array();
         $bamboraUrl->callbacks[] = $bamboraCallback;
         $bamboraUrl->immediateredirecttoaccept = $this->getConfigData('immediateredirecttoaccept', $storeId);
         $checkoutRequest->url = $bamboraUrl;
-
+        
         return $checkoutRequest;
     }
 
     public function setBamboraCheckout($setCheckoutRequest)
     {
-        $checkoutProvider = Mage::getModel("bamboraproviders/checkoutprovider");
+        $checkoutProvider = Mage::getModel('bamboraproviders/checkout');
         $setBamboraCheckoutResponse = $checkoutProvider->setBamboraCheckout($setCheckoutRequest);
         $setCheckoutResponseJson = json_decode($setBamboraCheckoutResponse,true);
         
-        if(!$setCheckoutResponseJson["meta"]["result"])
+        if(!$setCheckoutResponseJson['meta']['result'])
         {
-            Mage::getSingleton('core/session')->addError(Mage::helper("bamboracheckout")->__("An error occured. Please contact the shop owner"));
-            $errorMessage = new Exception(Mage::helper("bamboracheckout")->__("An error occured - ").$setCheckoutResponseJson["meta"]["message"]["merchant"]); 
+            Mage::getSingleton('core/session')->addError(Mage::helper('bamboracheckout')->__("An error occured. Please contact the shop owner"));
+            $errorMessage = new Exception(Mage::helper('bamboracheckout')->__("An error occured - ").$setCheckoutResponseJson['meta']['message']['merchant']); 
             Mage::log($errorMessage);
-            Mage::throwException($errorMessage);  
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getUrl('bamboracheckout/payment/cancel', array('_secure' => false)));
+            Mage::app()->getResponse()->sendResponse();       
+            return;
         
         }
 
@@ -239,7 +239,7 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
 
     public function getBamboraPaymentWindowUrl()
     {
-        $assetsProvider = Mage::getModel("bamboraproviders/assetsprovider");
+        $assetsProvider = Mage::getModel('bamboraproviders/assets');
         return $assetsProvider->getcheckoutpaymentwindowjs();
         
     }

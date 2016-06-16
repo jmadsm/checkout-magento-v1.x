@@ -4,7 +4,7 @@
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
  * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
  */
-class Bambora_BamboraCheckout_Model_BamboraProviders_BaseProvider extends Mage_Core_Model_Abstract
+class Bambora_BamboraCheckout_Model_BamboraProviders_Base extends Mage_Core_Model_Abstract
 {
     private $endpoints = array(
         "merchant"=>"https://merchant-v1.api.epay.eu",
@@ -54,7 +54,8 @@ class Bambora_BamboraCheckout_Model_BamboraProviders_BaseProvider extends Mage_C
         $encodedKey = base64_encode($combined);
         $apiKey = 'Basic '.$encodedKey;
 
-        return $apiKey; 
+        return $apiKey;
+       // return "Basic RGV2ZWxvcGVyTWVyY2hhbnRAVDAwMDAwMDAwMDpQYXNzd29yZC8x"; 
     }
 
 }
