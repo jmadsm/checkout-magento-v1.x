@@ -1,5 +1,5 @@
 <_>
-   <form_key>2hi11xLBP7xl2FMt</form_key>
+   <form_key>HUdusyJWyslBb4WK</form_key>
    <name>Bambora_Checkout</name>
    <channel>community</channel>
    <version_ids>
@@ -14,9 +14,10 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.0.1</version>
-   <stability>alpha</stability>
-   <notes>Initial release</notes>
+   <version>1.0.2</version>
+   <stability>stable</stability>
+   <notes>Going from alpha to stable version
+Added payment window id to checkout request</notes>
    <authors>
       <name>
          <name>Bambora</name>
@@ -45,7 +46,7 @@ http://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                             </files>
+            <files>                               </files>
          </files>
       </package>
       <extension>
@@ -117,8 +118,4 @@ http://www.bambora.com/
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>
