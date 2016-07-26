@@ -35,7 +35,6 @@ class Bambora_BamboraCheckout_Model_BamboraProviders_Base extends Mage_Core_Mode
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_FAILONERROR, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         
         $result = curl_exec($curl);
         return $result;        
@@ -49,13 +48,11 @@ class Bambora_BamboraCheckout_Model_BamboraProviders_Base extends Mage_Core_Mode
         $merchantNumber = $bambora->getConfigData('merchantnumber', $storeId);
         $secrettoken = $bambora->getConfigData('secrettoken', $storeId);
 
-        //Basic (accestoken@merchantnumer:secrettoken) -> base64
         $combined = $accesstoken . '@' . $merchantNumber .':'. $secrettoken;
         $encodedKey = base64_encode($combined);
         $apiKey = 'Basic '.$encodedKey;
 
-        return $apiKey;
-       // return "Basic RGV2ZWxvcGVyTWVyY2hhbnRAVDAwMDAwMDAwMDpQYXNzd29yZC8x"; 
+        return $apiKey;       
     }
 
 }
