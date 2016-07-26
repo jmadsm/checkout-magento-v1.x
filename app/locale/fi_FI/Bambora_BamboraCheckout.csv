@@ -25,7 +25,7 @@
 "<b>Access token:</b>","<b>Käyttötunnus:</b>"
 "<b>Secret token:</b>","<b>Salainen tunnus:</b>"
 "<b>MD5 Key:</b>","<b>MD5-avain:</b>"
-"<b>Window ID:</b>","<b>Ikkunatunnus:</b>"
+"<b>Payment Window ID:</b>","<b>Ikkunatunnus:</b>"
 "<b>Instant capture:</b>","<b>Automaattinen veloitus:</b>"
 "<b>Windows state:</b>","<b>Ikkunan tila:</b>"
 "Set to <b>Overlay</b> for the Payment Window to open as a overlayed window on top of the store. The store will be visible behind the payment window. Set to <b>Full Screen</b> to open the payment window in the same window but in full-screen. The store will not be visible in this setting.","Valitkaa <b>Overlay</b> mikäli haluatte maksusivun avautuvan kaupan sivun päälle. Kaupan sivu jää näkyville taustalle. Valitkaa <b>Full Screen</b> mikäli haluatte avata maksusivun samaan ikkunaan. Asiakas ohjataan takaisin kaupan sivulle maksamisen jälkeen."

@@ -68,15 +68,15 @@
               <show_in_website>1</show_in_website>
               <show_in_store>0</show_in_store>
             </md5key>
-            <windowid translate="label comment">
-              <label><![CDATA[<b>Window ID:</b>]]></label>
+            <paymentwindowid translate="label comment">
+              <label><![CDATA[<b>Payment Window ID:</b>]]></label>
               <comment><![CDATA[The ID of the payment window to use. You can find the available payment windows in the Bambora administration. Please <a href="https://merchant.bambora.com" target="_blank">log into your Bambora account</a> and go to <b>Settings -> Payment windows.</b>]]></comment>
               <frontend_type>text</frontend_type>
               <sort_order>7</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>0</show_in_store>
-            </windowid>
+            </paymentwindowid>
             <instantcapture translate="label comment">
               <label><![CDATA[<b>Instant capture:</b>]]></label>
               <comment><![CDATA[Set to <b>Yes</b> if you wish to capture payments at the same time they are authorized. In some countries, this is only permitted if the consumer receives the products right away Ex. digital products.]]></comment>

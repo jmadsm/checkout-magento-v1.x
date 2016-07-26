@@ -12,4 +12,5 @@ class Bambora_BamboraCheckout_Model_BamboraModels_Checkoutrequest extends Mage_C
     public $language;
     public $order; 
     public $url;
+    public $paymentwindowid;
 }

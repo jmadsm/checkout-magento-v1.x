@@ -213,6 +213,7 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
         $bamboraUrl->callbacks[] = $bamboraCallback;
         $bamboraUrl->immediateredirecttoaccept = $this->getConfigData('immediateredirecttoaccept', $storeId);
         $checkoutRequest->url = $bamboraUrl;
+        $checkoutRequest->paymentwindowid = $this->getConfigData('paymentwindowid', $storeId);
         
         return $checkoutRequest;
     }
