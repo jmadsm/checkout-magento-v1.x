@@ -35,6 +35,8 @@ class Bambora_BamboraCheckout_Model_BamboraProviders_Base extends Mage_Core_Mode
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_FAILONERROR, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
         
         $result = curl_exec($curl);
         return $result;        
