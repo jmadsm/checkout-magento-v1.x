@@ -1,5 +1,5 @@
 <_>
-   <form_key>HUdusyJWyslBb4WK</form_key>
+   <form_key>6deLk3Q6ywYdZtRr</form_key>
    <name>Bambora_Checkout</name>
    <channel>community</channel>
    <version_ids>
@@ -14,10 +14,9 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.0.2</version>
+   <version>1.0.3</version>
    <stability>stable</stability>
-   <notes>Going from alpha to stable version
-Added payment window id to checkout request</notes>
+   <notes>Adds support for Lindorff invoice linest</notes>
    <authors>
       <name>
          <name>Bambora</name>
@@ -46,7 +45,7 @@ Added payment window id to checkout request</notes>
             <max/>
          </max>
          <files>
-            <files>                               </files>
+            <files>                                 </files>
          </files>
       </package>
       <extension>
