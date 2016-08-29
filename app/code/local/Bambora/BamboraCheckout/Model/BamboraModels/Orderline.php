@@ -15,9 +15,5 @@ class Bambora_BamboraCheckout_Model_BamboraModels_Orderline extends Mage_Core_Mo
     public $totalpriceinclvat;
     public $totalpricevatamount;
     public $unit;
-    public $unitprice;
-    public $unitpriceinclvat;
-    public $unitpricevatamount;
     public $vat;
 }
-?>
