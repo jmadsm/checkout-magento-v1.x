@@ -70,14 +70,11 @@ class Bambora_Bamboracheckout_Model_Bambora extends Mage_Payment_Model_Method_Ab
 
         foreach($getPaymentTypesResponceJson['paymentcollections'] as $payment )
         {
-            if ($payment['name'] == 'paymentcard')
+            foreach($payment['paymentgroups'] as $card)
             {
-                foreach($payment['paymentgroups'] as $card)
-                {
-                    //enshure unique id:
-                    $cardname = $card['id'];
-                    $paymentcards[$cardname] = $card['id'];
-                }
+                //enshure unique id:
+                $cardname = $card['id'];
+                $paymentcards[$cardname] = $card['id'];
             }
         }
         ksort($paymentcards);
