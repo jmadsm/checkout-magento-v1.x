@@ -68,6 +68,7 @@ class Bambora_BamboraCheckout_Model_BamboraProviders_Base extends Mage_Core_Mode
         $bamboraVersion = (string) Mage::getConfig()->getNode()->modules->Bambora_BamboraCheckout->version;
         $magentoVersion = Mage::getVersion();
         $result = 'Magento/' . $magentoVersion . ' Module/' . $bamboraVersion;
+        return result;
     }              
 
    
