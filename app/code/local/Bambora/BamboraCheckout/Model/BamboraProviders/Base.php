@@ -25,7 +25,8 @@ class Bambora_BamboraCheckout_Model_BamboraProviders_Base extends Mage_Core_Mode
             'Content-Type: application/json',
             'Content-Length: '.strlen(@$jsonData),
             'Accept: application/json',
-            'Authorization: '.$apiKey
+            'Authorization: '.$apiKey,
+            'X-EPay-System: '.this->getModuleHeaderInfo()
         );
         
         $curl = curl_init();
@@ -57,4 +58,17 @@ class Bambora_BamboraCheckout_Model_BamboraProviders_Base extends Mage_Core_Mode
         return $apiKey;       
     }
 
+    /**
+     * Returns the module header
+     *
+     * @returns string
+     */
+    private function getModuleHeaderInfo() 
+    {
+        $bamboraVersion = (string) Mage::getConfig()->getNode()->modules->Bambora_BamboraCheckout->version;
+        $magentoVersion = Mage::getVersion();
+        $result = 'Magento/' . $magentoVersion . ' Module/' . $bamboraVersion;
+    }              
+
+   
 }
