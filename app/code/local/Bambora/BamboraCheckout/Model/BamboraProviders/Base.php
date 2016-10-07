@@ -26,7 +26,7 @@ class Bambora_BamboraCheckout_Model_BamboraProviders_Base extends Mage_Core_Mode
             'Content-Length: '.strlen(@$jsonData),
             'Accept: application/json',
             'Authorization: '.$apiKey,
-            'X-EPay-System: '.this->getModuleHeaderInfo()
+            'X-EPay-System: '.$this->getModuleHeaderInfo()
         );
         
         $curl = curl_init();
