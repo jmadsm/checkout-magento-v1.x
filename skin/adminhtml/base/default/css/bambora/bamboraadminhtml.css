@@ -1,0 +1,15 @@
+﻿.bambora_title {
+    font-size: 13px;
+    display: inline-block;
+    font-weight: 700;
+    vertical-align: top;
+}
+
+.bambora_paymentcard {
+    height: 17px;
+    position: relative;
+    vertical-align: middle;
+}
+.bambora_operations_title{
+    border-bottom:1pt solid black;
+}

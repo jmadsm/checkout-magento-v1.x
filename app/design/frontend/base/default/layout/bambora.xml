@@ -11,7 +11,7 @@
     <label>All Pages</label>
     <reference name="head">
       <action method="addCss">
-        <stylesheet>css/bamborafrontend.css</stylesheet>
+        <stylesheet>css/bambora/bamborafrontend.css</stylesheet>
       </action>
     </reference>
   </default>

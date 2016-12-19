@@ -12,9 +12,18 @@
     <label>All Pages</label>
     <reference name="head">
       <action method="addCss">
-        <stylesheet>css/bamboraadmin.css</stylesheet>
+        <stylesheet>css/bambora/bamboraadminhtml.css</stylesheet>
       </action>
     </reference>
   </default>
 
+  <adminhtml_sales_order_view>
+    <reference name="sales_order_tabs">
+      <action method="addTab">
+        <name>bambora_online_info</name>
+        <block>bambora/adminhtml_sales_order_view_tab_info</block>
+      </action>
+    </reference>
+  </adminhtml_sales_order_view>
+  
 </layout>
