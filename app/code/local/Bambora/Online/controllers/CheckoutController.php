@@ -303,7 +303,15 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
 
                 if(intval($method->getConfigData(BamboraConstant::INSTANT_INVOICE, $storeId)) == 1)
                 {
-                    $this->createInvoice($order);
+                    if(intval($method->getConfigData(BamboraConstant::REMOTE_INTERFACE, $storeId)) == 1 || intval($method->getConfigData(BamboraConstant::INSTANT_CAPTURE, $storeId)) === 1)
+                    {
+                        $this->createInvoice($order);
+                    }
+                    else
+                    {
+                        $order->addStatusHistoryComment($this->bamboraHelper->_s("Could not use instant invoice."). ' - '. $this->bamboraHelper->_s("Please enable remote payment processing from the module configuration"));
+                        $order->save();
+                    }
                 }
                 $message = "Callback Success - Order created";
             }

@@ -19,9 +19,6 @@ use Bambora_Online_Model_Api_Checkout_Constant_Model as CheckoutApiModel;
 
 class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Abstract
 {
-    const PAYMENT_TYPE_AUTH = 'AUTHORIZATION';
-    const PAYMENT_TYPE_SALE = 'SALE';
-
     const METHOD_CODE = 'bamboracheckout';
     const PSP_REFERENCE = 'bamboraCheckoutReference';
 
@@ -131,6 +128,28 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         }
     }
 
+    /**
+     * Get Bambora Checkout payment window
+     *
+     * @return Bambora_Online_Model_Api_Checkout_Response_Checkout
+     */
+    public function getPaymentWindow()
+    {
+        $checkoutRequest = $this->createCheckoutRequest();
+
+        /** @var Bambora_Online_Model_Api_Checkout_Checkout */
+        $checkoutApi = Mage::getModel(CheckoutApi::API_CHECKOUT);
+        $checkoutResponse = $checkoutApi->setCheckout($checkoutRequest, $this->getApiKey());
+
+        $message = "";
+        if(!$this->bamboraHelper->validateCheckoutApiResult($checkoutResponse, $checkoutRequest->order->ordernumber, false, $message))
+        {
+            $this->frontMessageHandler()->addError($this->bamboraHelper->_s('The order could not be created - The payment window could not be retrived'));
+            $checkoutResponse = null;
+        }
+
+        return $checkoutResponse;
+    }
 
     /**
      * Create the Bambora Checkout Request object
@@ -238,7 +257,6 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
                 $item->getName(),
                 $item->getBaseRowTotal(),
                 $item->getBaseTaxAmount(),
-                floatval($item->getTaxPercent()),
                 $order->getBaseCurrencyCode(),
                 $item->getBaseDiscountAmount());
 
@@ -254,7 +272,6 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $this->bamboraHelper->_s("Shipping"),
              $order->getBaseShippingAmount(),
             $order->getBaseShippingTaxAmount(),
-            null,
             $order->getBaseCurrencyCode(),
             $order->getBaseShippingDiscountAmount());
 
@@ -279,7 +296,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
      * @param mixed $currencyCode
      * @return Bambora_Online_Model_Api_Checkout_Request_Model_Line
      */
-    public function createInvoiceLine($description, $id, $lineNumber, $quantity, $text, $totalPrice, $totalPriceVatAmount, $vat, $currencyCode, $discountAmount = 0)
+    public function createInvoiceLine($description, $id, $lineNumber, $quantity, $text, $totalPrice, $totalPriceVatAmount, $currencyCode, $discountAmount = 0)
     {
         $minorUnits = $this->bamboraHelper->getCurrencyMinorunits($currencyCode);
 
@@ -294,93 +311,36 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         $line->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits((($totalPrice + $totalPriceVatAmount) - $discountAmount), $minorUnits);
         $line->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorUnits($totalPriceVatAmount, $minorUnits);
         $line->unit = $this->bamboraHelper->_s("pcs.");
-        if(!isset($vat))
-        {
-            $vat = $totalPriceVatAmount > 0 && $totalPrice > 0  ? round($totalPriceVatAmount / $totalPrice * 100) : 0;
-        }
+
+        //Calculate the percentage of tax
+        $vat = $totalPriceVatAmount > 0 && $totalPrice > 0  ? round($totalPriceVatAmount / $totalPrice * 100) : 0;
         $line->vat = $vat;
 
         return $line;
     }
 
-
-    /**
-     * Get Bambora Checkout payment window
-     *
-     * @return Bambora_Online_Model_Api_Checkout_Response_Checkout
-     */
-    public function getPaymentWindow()
-    {
-        $checkoutRequest = $this->createCheckoutRequest();
-
-        /** @var Bambora_Online_Model_Api_Checkout_Checkout */
-        $checkoutApi = Mage::getModel(CheckoutApi::API_CHECKOUT);
-        $checkoutResponse = $checkoutApi->setCheckout($checkoutRequest, $this->getApiKey());
-
-        $message = "";
-        if(!$this->bamboraHelper->validateCheckoutApiResult($checkoutResponse, $checkoutRequest->order->ordernumber, false, $message))
-        {
-            $this->frontMessageHandler()->addError($this->bamboraHelper->_s('The order could not be created - The payment window could not be retrived'));
-            $checkoutResponse = null;
-        }
-
-        return $checkoutResponse;
-    }
-
-    private function canOnlineAction($payment)
-    {
-        if (intval($this->getConfigData(BamboraConstant::REMOTE_INTERFACE, $payment->getOrder() ? $payment->getOrder()->getStoreId() : null)) === 1)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private function canAction($payment)
-    {
-		$transactionId = $payment->getAdditionalInformation($this::PSP_REFERENCE);
-        if(!empty($transactionId))
-		{
-			return true;
-		}
-
-        return false;
-    }
-
-    public function canCapture()
-	{
-        $captureOrder = $this->_data["info_instance"]->getOrder();
-
-		if($this->_canCapture && $this->canAction($captureOrder->getPayment()))
-        {
-            return true;
-        }
-
-        return false;
-	}
-
+    /**{@inheritDoc}*/
     public function capture(Varien_Object $payment, $amount)
     {
-        $transactionId = $payment->getAdditionalInformation($this::PSP_REFERENCE);
-        $isInstantCapure = $payment->getAdditionalInformation(BamboraConstant::INSTANT_CAPTURE);
-
-        if($isInstantCapure === true)
-        {
-            $payment->setTransactionId($transactionId . '-' . BamboraConstant::INSTANT_CAPTURE)
-                ->setIsTransactionClosed(true)
-                ->setParentTransactionId($transactionId);
-
-            return $this;
-        }
-
-        if(!$this->canOnlineAction($payment))
-        {
-            Mage::throwException($this->bamboraHelper->_s("The capture action could not, be processed online. Please enable remote payment processing from the module configuration"));
-        }
-
         try
         {
+            $transactionId = $payment->getAdditionalInformation($this::PSP_REFERENCE);
+            $isInstantCapure = $payment->getAdditionalInformation(BamboraConstant::INSTANT_CAPTURE);
+
+            if($isInstantCapure === true)
+            {
+                $payment->setTransactionId($transactionId . '-' . BamboraConstant::INSTANT_CAPTURE)
+                    ->setIsTransactionClosed(true)
+                    ->setParentTransactionId($transactionId);
+
+                return $this;
+            }
+
+            if(!$this->canOnlineAction($payment))
+            {
+                throw new Exception($this->bamboraHelper->_s("The capture action could not, be processed online. Please enable remote payment processing from the module configuration"));
+            }
+
             /** @var Mage_Sales_Model_Order */
             $order = $payment->getOrder();
 
@@ -391,7 +351,16 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $captureRequest = Mage::getModel(CheckoutApiModel::REQUEST_CAPTURE);
             $captureRequest->amount = $this->bamboraHelper->convertPriceToMinorUnits($amount, $minorunits);
             $captureRequest->currency = $currency;
-            $captureRequest->invoicelines = $this->getCaptureInvoiceLines($order);
+
+            //Only add invoice lines if it is a full capture
+            $invoiceLines = null;
+            if(floatval($amount) === floatval($order->getBaseTotalDue()))
+            {
+                $invoiceLines = $this->getCaptureInvoiceLines($order);
+            }
+
+
+            $captureRequest->invoicelines = $invoiceLines;
 
             /** @var Bambora_Online_Model_Api_Checkout_Transaction */
             $transactionApi = Mage::getModel(CheckoutApi::API_TRANSACTION);
@@ -412,36 +381,26 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $payment->setTransactionId($transactionoperationId . '-' . Mage_Sales_Model_Order_Payment_Transaction::TYPE_CAPTURE)
                     ->setIsTransactionClosed(true)
                     ->setParentTransactionId($transactionId);
+
+            return $this;
         }
         catch(Exception $e)
         {
             Mage::throwException($e->getMessage());
+            return null;
         }
-
-        return $this;
     }
 
-    public function canRefund()
-    {
-        $creditOrder = $this->_data["info_instance"]->getOrder();
-
-		if($this->_canRefund && $this->canAction($creditOrder->getPayment()))
-        {
-            return true;
-        }
-
-		return false;
-    }
-
-
+    /**{@inheritDoc}*/
     public function refund(Varien_Object $payment, $amount)
     {
-        if(!$this->canOnlineAction($payment))
-        {
-            Mage::throwException($this->bamboraHelper->_s("The refund action could not, be processed online. Please enable remote payment processing from the module configuration"));
-        }
         try
         {
+            if(!$this->canOnlineAction($payment))
+            {
+                throw new Exception($this->bamboraHelper->_s("The refund action could not, be processed online. Please enable remote payment processing from the module configuration"));
+            }
+
             $transactionId = $payment->getAdditionalInformation($this::PSP_REFERENCE);
             $order = $payment->getOrder();
 
@@ -472,15 +431,17 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $payment->setTransactionId($transactionoperationId . '-' . Mage_Sales_Model_Order_Payment_Transaction::TYPE_REFUND)
                     ->setIsTransactionClosed(true)
                     ->setParentTransactionId($transactionId);
+
+            return $this;
         }
         catch(Exception $e)
         {
             Mage::throwException($e->getMessage());
+            return null;
         }
-
-        return $this;
     }
 
+    /**{@inheritDoc}*/
     public function cancel(Varien_Object $payment)
     {
         try
@@ -496,25 +457,16 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         return $this;
     }
 
-    public function canVoid(Varien_Object $payment)
-    {
-        if($this->_canVoid && $this->canAction($payment))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-
+    /**{@inheritDoc}*/
     public function void(Varien_Object $payment)
     {
-        if(!$this->canOnlineAction($payment))
-        {
-            Mage::throwException($this->bamboraHelper->_s("The void action could not, be processed online. Please enable remote payment processing from the module configuration"));
-        }
         try
         {
+            if(!$this->canOnlineAction($payment))
+            {
+                throw new Exception($this->bamboraHelper->_s("The void action could not, be processed online. Please enable remote payment processing from the module configuration"));
+            }
+
             $transactionId = $payment->getAdditionalInformation($this::PSP_REFERENCE);
             $order = $payment->getOrder();
 
@@ -534,13 +486,14 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $payment->setTransactionId($transactionoperationId . '-' . Mage_Sales_Model_Order_Payment_Transaction::TYPE_VOID)
                     ->setIsTransactionClosed(true)
                     ->setParentTransactionId($transactionId);
+
+            return $this;
         }
         catch(Exception $e)
         {
             Mage::throwException($e->getMessage());
+            return null;
         }
-
-        return $this;
     }
 
     /**
@@ -609,7 +562,6 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         return $transactionOperations;
     }
 
-
     /**
      * Get Refund Invoice Lines
      *
@@ -620,11 +572,21 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
     private function getCaptureInvoiceLines($order)
     {
         $invoice = $order->getInvoiceCollection()->getLastItem();
-        $invoiceItems = $invoice->getItemsCollection()->getItems();
-        $lines = $this->getInvoiceLines($invoiceItems, $order);
+        $invoiceItems = $order->getAllVisibleItems();
+        $lines = array();
+        $feeItem = null;
+        foreach($invoiceItems as $item)
+        {
+            if($item->getSku() === BamboraConstant::BAMBORA_SURCHARGE)
+            {
+                $feeItem = $this->createInvoiceLineFromInvoice($item, $order);
+                continue;
+            }
+            $lines[] = $this->createInvoiceLineFromInvoice($item, $order);
+        }
 
-        $shippingAmount = $invoice->getBaseShippingAmount();
         //Shipping discount handling
+        $shippingAmount = $invoice->getBaseShippingAmount();
         if($order->getBaseShippingDiscountAmount() > 0)
         {
             $invoiceShipmentAmount = $invoice->getBaseShippingAmount();
@@ -642,7 +604,13 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
 
         //Shipping
         $shippingName = $this->bamboraHelper->_s("Shipping");
-        $lines[] = $this->createInvoiceLine($shippingName, $shippingName, count($lines), 1, $shippingName, $shippingAmount, $invoice->getBaseShippingTaxAmount(), null, $invoice->getBaseCurrencyCode());
+        $lines[] = $this->createInvoiceLine($shippingName, $shippingName, count($lines), 1, $shippingName, $shippingAmount, $invoice->getBaseShippingTaxAmount(), $invoice->getBaseCurrencyCode());
+
+        //Add fee item
+        if(isset($feeItem))
+        {
+            $lines[] = $feeItem;
+        }
 
         return $lines;
     }
@@ -657,19 +625,18 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
     public function getRefundInvoiceLines($creditMemo, $order)
     {
         $lines = array();
-
         //Fee item must be after shipment to keep the orginal authorize order of items
         $feeItem = null;
-        $items = $creditMemo->getAllItems();
+        $items = $this->filterVisibleItemsOnly($creditMemo->getAllItems());
+
         foreach($items as $item)
         {
-
             if($item->getSku() === BamboraConstant::BAMBORA_SURCHARGE)
             {
-                $feeItem = $item;
+                $feeItem = $this->createInvoiceLineFromInvoice($item, $order);
                 continue;
             }
-            $lines[] = $item;
+            $lines[] = $this->createInvoiceLineFromInvoice($item, $order);
         }
 
         $shippingAmount = $creditMemo->getBaseShippingAmount();
@@ -689,14 +656,14 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             }
         }
 
-
         //Shipping
         if($shippingAmount > 0)
         {
             $shippingName = $this->bamboraHelper->_s("Shipping");
-            $lines[] = $this->createInvoiceLine($shippingName, $shippingName, count($lines) + 1, 1, $shippingName, $shippingAmount, $creditMemo->getBaseShippingTaxAmount(),null, $creditMemo->getBaseCurrencyCode());
+            $lines[] = $this->createInvoiceLine($shippingName, $shippingName, count($lines) + 1, 1, $shippingName, $shippingAmount, $creditMemo->getBaseShippingTaxAmount(), $creditMemo->getBaseCurrencyCode());
         }
 
+        //Add fee item
         if(isset($feeItem))
         {
             $lines[] = $feeItem;
@@ -706,69 +673,236 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         if($creditMemo->getBaseAdjustment() > 0)
         {
             $adjustmentRefundName = $this->bamboraHelper->_s("Adjustment refund");
-            $lines[] = $this->createInvoiceLine($adjustmentRefundName, $adjustmentRefundName, count($lines) + 1, 1, $adjustmentRefundName, $creditMemo->getBaseAdjustment(), 0, null, $creditMemo->getBaseCurrencyCode());
+            $lines[] = $this->createInvoiceLine($adjustmentRefundName, $adjustmentRefundName, count($lines) + 1, 1, $adjustmentRefundName, $creditMemo->getBaseAdjustment(), 0, $creditMemo->getBaseCurrencyCode());
         }
         return $lines;
     }
 
+    /**
+     * Filter an itemcollection and only return the visible items
+     *
+     * @param Mage_Sales_Model_Order_Creditmemo_Item[]|Mage_Sales_Model_Order_Invoice_Item[] $itemCollection
+     * @return array
+     */
+    private function filterVisibleItemsOnly($itemCollection)
+    {
+        $items = array();
+        foreach ($itemCollection as $orgItem)
+        {
+            $item = $orgItem->getOrderItem();
+            if (!$item->isDeleted() && !$item->getParentItemId()) {
+                $items[] =  $item;
+            }
+        }
+        return $items;
+    }
+
+    /**
+     * Get Invoice Lines
+     *
+     * @param Mage_Sales_Model_Order_Creditmemo_Item|Mage_Sales_Model_Order_Invoice_Item $item
+     * @param Mage_Sales_Model_Order $order
+     * @return Bambora_Online_Model_Api_Checkout_Request_Model_Line
+     */
+    private function createInvoiceLineFromInvoice($item, $order)
+    {
+        $invoiceLine = $this->createInvoiceLine(
+            $item->getDescription(),
+            $item->getSku(),
+            array_search($item->getOrderItemId(), array_keys($order->getAllItems())) + 1,
+            floatval($item->getQty()),
+            $item->getName(),
+            $item->getBaseRowTotal(),
+            $item->getBaseTaxAmount(),
+            $order->getBaseCurrencyCode(),
+            $item->getBaseDiscountAmount());
+
+        return $invoiceLine;
+    }
+
+    /**
+     * Can do online action
+     *
+     * @param Varien_Object $payment
+     * @return boolean
+     */
+    private function canOnlineAction($payment)
+    {
+        $storeId = $payment->getOrder()->getStoreId();
+        if (intval($this->getConfigData(BamboraConstant::REMOTE_INTERFACE, $storeId)) === 1)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Can do action
+     *
+     * @param Mage_Sales_Model_Order_Payment $payment
+     * @return boolean
+     */
+    private function canAction($payment)
+    {
+		$transactionId = $payment->getAdditionalInformation($this::PSP_REFERENCE);
+        if(!empty($transactionId))
+		{
+			return true;
+		}
+
+        return false;
+    }
+
+    /**{@inheritDoc}*/
+    public function canCapture()
+	{
+        $captureOrder = $this->_data["info_instance"]->getOrder();
+
+		if($this->_canCapture && $this->canAction($captureOrder->getPayment()))
+        {
+            return true;
+        }
+
+        return false;
+	}
+
+    /**{@inheritDoc}*/
+    public function canRefund()
+    {
+        $creditOrder = $this->_data["info_instance"]->getOrder();
+
+		if($this->_canRefund && $this->canAction($creditOrder->getPayment()))
+        {
+            return true;
+        }
+
+		return false;
+    }
+
+    /**{@inheritDoc}*/
+    public function canVoid(Varien_Object $payment)
+    {
+        if($this->_canVoid && $this->canAction($payment))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get Bambora Checkout Accept url
+     *
+     * @return string
+     */
     public function getAcceptUrl()
     {
         return Mage::getUrl('bambora/checkout/accept', ['_secure' => Mage::app()->getRequest()->isSecure()]);
     }
 
+    /**
+     * Get Bambora Checkout Cancel url
+     *
+     * @return string
+     */
     public function getCancelUrl()
     {
         return Mage::getUrl('bambora/checkout/cancel', ['_secure' => Mage::app()->getRequest()->isSecure()]);
     }
 
+    /**
+     * Get Bambora Checkout Callback url
+     *
+     * @return string
+     */
     public function getCallbackUrl()
     {
         return Mage::getUrl('bambora/checkout/callback', ['_secure' => Mage::app()->getRequest()->isSecure()]);
     }
 
-
+    /**
+     * Get Bambora Checkout Payment window url
+     *
+     * @return string
+     */
     public function getCheckoutPaymentWindowUrl()
     {
         /** @var Bambora_Online_Model_Api_Checkout_Assets */
         $assetsApi = Mage::getModel(CheckoutApi::API_ASSETS);
         return $assetsApi->getCheckoutPaymentWindowJSUrl();
     }
+
+    /**
+     * Get Admin message handler
+     *
+     * @return Mage_Core_Model_Abstract
+     */
     public function adminMessageHandler()
     {
         return Mage::getSingleton('adminhtml/session');
     }
 
+    /**
+     * Get Front message handler
+     *
+     * @return Mage_Core_Model_Abstract
+     */
     public function frontMessageHandler()
     {
         return Mage::getSingleton('core/session');
     }
 
+    /**
+     * Get Redirect Url
+     *
+     * @return string
+     */
     public function getOrderPlaceRedirectUrl()
     {
         return Mage::getUrl('bambora/checkout/redirect', array('_secure' => Mage::app()->getRequest()->isSecure()));
     }
 
+    /**
+     * Get Chekout session
+     *
+     * @return Mage_Core_Model_Abstract
+     */
     public function getCheckout()
     {
         return Mage::getSingleton('checkout/session');
     }
 
+    /**
+     * Get Quote
+     *
+     * @return mixed
+     */
     public function getQuote()
     {
         return $this->getCheckout()->getQuote();
     }
 
+    /**
+     * Get store
+     *
+     * @return Mage_Core_Model_Store
+     */
     public function getStore()
     {
         return Mage::app()->getStore();
     }
 
+    /**
+     * Get order
+     *
+     * @return boolean|Mage_Core_Model_Abstract
+     */
     public function getOrder()
     {
         $session = $this->getCheckout();
         $order = Mage::getModel('sales/order');
         $order->loadByIncrementId($session->getLastRealOrderId());
         return $order;
-
     }
 }
