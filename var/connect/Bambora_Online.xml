@@ -1,5 +1,5 @@
 <_>
-   <form_key>a1xiIiJ7vFV51dW4</form_key>
+   <form_key>gjIgDOtpQpxzEnvg</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,9 +14,28 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.1.0</version>
+   <version>1.1.1</version>
    <stability>stable</stability>
-   <notes>TODO</notes>
+   <notes>Add Invoice action
+Add Creditmemo action
+Add Transaction informations
+Add Cancel and Void action
+Add encryption to md5key and remote password
+Add Mass incoice action
+Add Mass Creditmemo action
+Add Mass Delete action
+Add auto order canceling
+Fix for instant invoice error when Remote interface is disabled and instant capture is activated.
+Fix for payment fee added even if value is 0
+Fix for capture, credit and void is executed even if error occurs
+Edit config comment text
+Updated payment window layout and logic.
+Add Surcharge fee as an order item
+Module name change
+Performance optimization and code refactoring
+Notice:
+
+You must re-enter your secret token and md5 key in the module configuration after updating to this version</notes>
    <authors>
       <name>
          <name>Bambora</name>
@@ -45,7 +64,7 @@ http://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                                                     </files>
+            <files>                                                      </files>
          </files>
       </package>
       <extension>
