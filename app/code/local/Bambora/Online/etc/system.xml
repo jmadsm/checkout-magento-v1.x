@@ -3,9 +3,9 @@
   <sections>
     <payment>
       <groups>
-        <bamboracheckout translate="label comment" module="bambora">
+        <bamboracheckout module="bambora">
           <label>Bambora Checkout 1.1.1</label>
-          <comment><![CDATA[Detailed description of these settings are to be found <a href="http://dev.bambora.com/carts.html#magento" target="_blank">here</a>.<br><br>]]></comment>
+          <comment><![CDATA[Detailed description of these settings are to be found <a href="http://dev.bambora.com/carts.html#magento-v1" target="_blank">here</a>.<br><br>]]></comment>
           <frontend_type>text</frontend_type>
           <sort_order>1</sort_order>
           <expanded>1</expanded>
@@ -13,9 +13,9 @@
           <show_in_website>1</show_in_website>
           <show_in_store>1</show_in_store>
           <fields>
-            <active translate="label comment">
+            <active>
               <label><![CDATA[<b>Enabled:</b>]]></label>
-              <comment><![CDATA[To enable and disable this payment method.]]></comment>
+              <comment><![CDATA[Set to Yes to allow your customers to use Bambora Checkout as a payment option.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>1</sort_order>
@@ -23,7 +23,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </active>
-            <title translate="label comment">
+            <title>
               <label><![CDATA[<b>Title:</b>]]></label>
               <comment><![CDATA[The title of the payment method displayed to the customers.]]></comment>
               <frontend_type>text</frontend_type>
@@ -32,27 +32,27 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </title>
-            <merchantnumber translate="label comment">
+            <merchantnumber>
               <label><![CDATA[<b>Merchant number:</b>]]></label>
-              <comment><![CDATA[The number identifying your Bambora merchant account. If you don't know your merchant number, please <a href="https://merchant.bambora.com" target="_blank">log into your Bambora account.</a> Go to <b>Settings -> Merchant numbers</b> to view your merchant number.]]></comment>
+              <comment><![CDATA[The number identifying your Bambora merchant account.]]></comment>
               <frontend_type>text</frontend_type>
               <sort_order>3</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </merchantnumber>
-            <accesstoken translate="label comment">
+            <accesstoken>
               <label><![CDATA[<b>Access token:</b>]]></label>
-              <comment><![CDATA[The Access token for the API user received from the Bambora administration. If you don't know your Access token please <a href="https://merchant.bambora.com" target="_blank">log into your Bambora account.</a> Go to <b>Settings -> API users</b> to view or create a new API user.]]></comment>
+              <comment><![CDATA[The Access token for the API user received from the Bambora administration.]]></comment>
               <frontend_type>text</frontend_type>
               <sort_order>4</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </accesstoken>
-            <secrettoken translate="label comment">
+            <secrettoken>
               <label><![CDATA[<b>Secret token:</b>]]></label>
-              <comment><![CDATA[The Secret token for the API user received from the Bambora administration. The Secret token is only displayed to you when you create a new API user and as such you should take note of it. If you have lost your Secret token, <a href="https://merchant.bambora.com" target="_blank">log into your Bambora account</a> and create a new API user. Go to <b>Settings -> API users -> Create API users</b>]]></comment>
+              <comment><![CDATA[The Secret token for the API user received from the Bambora administration.]]></comment>
               <frontend_type>obscure</frontend_type>
               <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
               <sort_order>5</sort_order>
@@ -60,28 +60,27 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </secrettoken>
-            <md5key translate="label comment">
+            <md5key>
               <label><![CDATA[<b>MD5 Key:</b>]]></label>
-              <comment><![CDATA[The MD5 key is used to stamp data sent between Magento and Bambora to prevent it from being tampered with. The MD5 key is optional but if used here, must be the same as in the Bambora administration. To view your MD5 key please <a href="https://merchant.bambora.com" target="_blank">log into your Bambora account</a> and go to <b>Settings -> Merchant numbers -> Edit</b>]]></comment>
-              <frontend_type>obscure</frontend_type>
-              <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
+              <comment><![CDATA[The MD5 key is used to stamp data sent between Magento and Bambora to prevent it from being tampered with. The MD5 key is optional but if used here, must be the same as in the Bambora administration.]]></comment>
+              <frontend_type>text</frontend_type>
               <sort_order>6</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </md5key>
-            <paymentwindowid translate="label comment">
+            <paymentwindowid>
               <label><![CDATA[<b>Payment Window ID:</b>]]></label>
-              <comment><![CDATA[The ID of the payment window to use. You can find the available payment windows in the Bambora administration. Please <a href="https://merchant.bambora.com" target="_blank">log into your Bambora account</a> and go to <b>Settings -> Payment windows.</b>]]></comment>
+              <comment><![CDATA[The ID of the payment window to use.]]></comment>
               <frontend_type>text</frontend_type>
               <sort_order>7</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </paymentwindowid>
-            <instantcapture translate="label comment">
+            <instantcapture>
               <label><![CDATA[<b>Instant capture:</b>]]></label>
-              <comment><![CDATA[Set to <b>Yes</b> if you wish to capture payments at the same time they are authorized. In some countries, this is only permitted if the consumer receives the products right away Ex. digital products.]]></comment>
+              <comment><![CDATA[Capture the payments at the same time they are authorized. In some countries, this is only permitted if the consumer receives the products right away Ex. digital products.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>8</sort_order>
@@ -89,9 +88,9 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </instantcapture>
-            <windowstate translate="label comment">
+            <windowstate>
               <label><![CDATA[<b>Windows state:</b>]]></label>
-              <comment><![CDATA[Set to <b>Overlay</b> for the Payment Window to open as a overlayed window on top of the store. The store will be visible behind the payment window. Set to <b>Full Screen</b> to open the payment window in the same window but in full-screen. The store will not be visible in this setting.]]></comment>
+              <comment><![CDATA[Set how the payment window should be displayet.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>bambora/system_config_source_windowstate</source_model>
               <sort_order>9</sort_order>
@@ -99,9 +98,9 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </windowstate>
-            <immediateredirecttoaccept translate="label comment">
-              <label><![CDATA[<b>Immediate Redirect</b>]]></label>
-              <comment><![CDATA[Set to <b>Yes</b> to immediately redirect your customer back to you shop after the payment completed.]]></comment>
+            <immediateredirecttoaccept>
+              <label><![CDATA[<b>Immediate Redirect:</b>]]></label>
+              <comment><![CDATA[Immediately redirect your customer back to you shop after the payment completed.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>10</sort_order>
@@ -109,9 +108,9 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </immediateredirecttoaccept>
-            <addsurchargetopayment translate="label comment">
-              <label><![CDATA[<b>Add payment fee to order</b>]]></label>
-              <comment><![CDATA[If the customer pays for the payment surcharge the amount will not be displayed on the order confirmation. The surcharge is displayed on the order, invoice and creditmemo totals]]></comment>
+            <addsurchargetopayment>
+              <label><![CDATA[<b>Add Surcharge:</b>]]></label>
+              <comment><![CDATA[Display surcharge amount on the order, invoice and creditmemo as an item]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>11</sort_order>
@@ -119,9 +118,9 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </addsurchargetopayment>
-            <sendmailorderconfirmation translate="label comment">
+            <sendmailorderconfirmation>
               <label><![CDATA[<b>Send Email Order Confirmation:</b>]]></label>
-              <comment><![CDATA[Enabling this setting will result in an order confirmation is e-mailed to the customer as the payment is made.]]></comment>
+              <comment><![CDATA[Send an email order confirmation to the customer when the payment is completed.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>12</sort_order>
@@ -129,8 +128,9 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </sendmailorderconfirmation>
-            <onlyshowpaymentlogos translate="label">
-              <label><![CDATA[<b>Only show payment logos on checkout</b>]]></label>
+            <onlyshowpaymentlogos>
+              <label><![CDATA[<b>Only show payment logos at checkout</b>]]></label>
+              <comment><![CDATA[Set to diable the title text and only display payment logos at checkout]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>13</sort_order>
@@ -138,20 +138,9 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </onlyshowpaymentlogos>
-            <remoteinterface translate="label">
-              <label><![CDATA[<b>Process payments from within the order administration of Magento:</b>]]></label>
-              <comment>
-                <![CDATA[
-                            	Enable this option in order to capture, credit and delete payments directly from the Magento administration on the order page. You then don't need to enter the administration area of the payment system in order to process payments.
-                            	<br><br>
-                            	<b>Important information when processing the payments from Magento:</b>
-                            	<br>
-								- When an order is canceled or voided the payment is deleted within the payment system.<br>
-                            	- When an invoice is created the payment can be captured from the bottom of the invoice.<br>
-                            	- When a credit memo is created the payment can be credited back to the customer from the bottom of the credit memo.<br>
-                            	</ul>
-                            ]]>
-              </comment>
+            <remoteinterface>
+              <label><![CDATA[<b>Enable remote payment proccessing from within Magento</b>]]></label>
+              <comment><![CDATA[Enable this option in order to capture, credit, delete and display payments directly from the Magento backoffice]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>14</sort_order>
@@ -159,9 +148,9 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </remoteinterface>
-            <instantinvoice translate="label">
+            <instantinvoice>
               <label><![CDATA[<b>Instant invoice:</b>]]></label>
-              <comment><![CDATA[This is used if you wish to create an invoice once the payment has been authorized. Notice that this will also try to capture the payment]]></comment>
+              <comment><![CDATA[Automatic create an invoice once the payment is completed]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>15</sort_order>
@@ -169,7 +158,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </instantinvoice>
-            <instantinvoicemail translate="label">
+            <instantinvoicemail>
               <label><![CDATA[<b>Instant invoice mail:</b>]]></label>
               <comment><![CDATA[If instant invoice then send invoice to customer.]]></comment>
               <frontend_type>select</frontend_type>
@@ -179,9 +168,9 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </instantinvoicemail>
-            <masscaptureinvoicemail translate="label">
+            <masscaptureinvoicemail>
               <label><![CDATA[<b>Mass Invoice and Capture mail:</b>]]></label>
-              <comment><![CDATA[When bulk invoice and capture then send invoice mail to customer.]]></comment>
+              <comment><![CDATA[Send invoice mail to the customers when bulk invoice and capture.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>17</sort_order>
@@ -189,17 +178,17 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </masscaptureinvoicemail>
-            <order_status translate="label">
-              <label><![CDATA[<b>Order status (Before the payment is made):</b>]]></label>
-              <comment><![CDATA[Set the status of the order <b>before</b> the payment is made. This is used to distinguish between paid and not paid orders!]]></comment>
+            <order_status>
+              <label><![CDATA[<b>Order status (Before the payment is completed):</b>]]></label>
+              <comment><![CDATA[Set the status of the order <b>before</b> the payment is completed.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_order_status</source_model>
               <sort_order>18</sort_order>
               <show_in_default>1</show_in_default>
             </order_status>
-            <order_status_after_payment translate="label">
-              <label><![CDATA[<b>New order status (When the payment is made):</b>]]></label>
-              <comment><![CDATA[Set the status of the order <b>after</b> the payment is made. This is used to distinguish between paid and not paid orders!]]></comment>
+            <order_status_after_payment>
+              <label><![CDATA[<b>Order status (After the payment is completed):</b>]]></label>
+              <comment><![CDATA[Set the status of the order <b>after</b> the payment is completed.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_order_status</source_model>
               <sort_order>19</sort_order>
@@ -207,7 +196,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </order_status_after_payment>
-            <useautocancel translate="label">
+            <useautocancel>
               <label><![CDATA[<b>Use Auto-Cancel:</b>]]></label>
               <comment><![CDATA[If enabled this will auto-cancel orders where no payment has been made in the time interval: from 1 day ago until 1 hour ago. <b>Notice!</b> For this to work you must setup cronjobs for your Magento installation. Contact your hosting provider for assistance on how to do so.]]></comment>
               <frontend_type>select</frontend_type>
@@ -215,7 +204,7 @@
               <sort_order>20</sort_order>
               <show_in_default>1</show_in_default>
             </useautocancel>
-            <sort_order translate="label comment">
+            <sort_order>
               <label><![CDATA[<b>Sort order:</b>]]></label>
               <comment><![CDATA[The order of which this payment method is displayed to the customer.]]></comment>
               <frontend_type>text</frontend_type>

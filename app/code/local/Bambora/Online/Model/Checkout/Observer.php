@@ -63,7 +63,7 @@ class Bambora_Online_Model_Checkout_Observer
         /** @var Bambora_Online_Model_Checkout_Payment */
         $payment = Mage::getModel('bamboracheckout/payment');
         $storeId = $payment->getStore()->getId();
-        
+
         if(intval($payment->getConfigData(BamboraConstant::USE_AUTO_CANCEL, $storeId)) === 1)
         {
             $date = Mage::getSingleton('core/date');

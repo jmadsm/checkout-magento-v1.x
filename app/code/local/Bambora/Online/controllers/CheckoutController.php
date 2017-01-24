@@ -230,8 +230,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
 
         $method = $this->getMethodInstance($order);
         $storeId = $order->getStoreId();
-        $storeMd5Encrypted = $method->getConfigData(BamboraConstant::MD5_KEY, $storeId);
-        $storeMd5 = Mage::helper('core')->decrypt($storeMd5Encrypted);
+        $storeMd5 = $method->getConfigData(BamboraConstant::MD5_KEY, $storeId);
         if (!empty($storeMd5))
 		{
 			$accept_params = $_GET;
@@ -239,7 +238,9 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
 			foreach ($accept_params as $key => $value)
 			{
 				if($key != "hash")
+                {
 					$var .= $value;
+                }
 			}
 
             $storeHash = md5($var . $storeMd5);

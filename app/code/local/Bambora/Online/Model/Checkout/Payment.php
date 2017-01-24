@@ -783,7 +783,12 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
     /**{@inheritDoc}*/
     public function canVoid(Varien_Object $payment)
     {
-        if($this->_canVoid && $this->canAction($payment))
+        $voidOrder = $payment->getOrder();
+        if(!isset($voidOrder))
+        {
+            $voidOrder = $this->_data["info_instance"]->getOrder();
+        }
+        if($this->_canVoid && $this->canAction($voidOrder))
         {
             return true;
         }
