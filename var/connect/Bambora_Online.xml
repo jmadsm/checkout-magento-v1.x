@@ -1,5 +1,5 @@
 <_>
-   <form_key>OAf2HvN6Ki4SDV1b</form_key>
+   <form_key>tv3hbWm5wJW1JzbI</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -50,7 +50,7 @@ You must re-enter your md5 key in the module configuration after updating to thi
             <max/>
          </max>
          <files>
-            <files>                                                        </files>
+            <files>                                                           </files>
          </files>
       </package>
       <extension>
@@ -75,8 +75,9 @@ You must re-enter your md5 key in the module configuration after updating to thi
          <target>mageetc</target>
          <target>mageskin</target>
          <target>mageskin</target>
-         <target>magelocale</target>
          <target>magedesign</target>
+         <target>magelocale</target>
+         <target>magelocale</target>
       </target>
       <path>
          <path/>
@@ -87,8 +88,9 @@ You must re-enter your md5 key in the module configuration after updating to thi
          <path>modules/Bambora_Online.xml</path>
          <path>adminhtml/base/default/css/bambora/</path>
          <path>frontend/base/default/css/bambora/</path>
-         <path/>
          <path>adminhtml/default/default/template/bambora/</path>
+         <path>da_DK/Bambora_Online.csv</path>
+         <path>en_US/Bambora_Online.csv</path>
       </path>
       <type>
          <type>file</type>
@@ -100,7 +102,8 @@ You must re-enter your md5 key in the module configuration after updating to thi
          <type>dir</type>
          <type>dir</type>
          <type>dir</type>
-         <type>dir</type>
+         <type>file</type>
+         <type>file</type>
       </type>
       <include>
          <include/>
@@ -111,7 +114,8 @@ You must re-enter your md5 key in the module configuration after updating to thi
          <include/>
          <include/>
          <include/>
-         <include>#Bambora_BamboraCheckout.csv#</include>
+         <include/>
+         <include/>
          <include/>
       </include>
       <ignore>
@@ -125,6 +129,11 @@ You must re-enter your md5 key in the module configuration after updating to thi
          <ignore/>
          <ignore/>
          <ignore/>
+         <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>
