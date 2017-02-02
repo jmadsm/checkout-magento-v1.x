@@ -96,7 +96,8 @@ class Bambora_Online_Model_Checkout_Observer
                     $orderModel->addStatusToHistory($orderModel->getStatus(), $message);
                     $orderModel->save();
                 } catch (Exception $e) {
-                    echo "Could not be canceled: " . $e->getMessage();
+                    $message = "Could not be canceled: " . $e->getMessage();
+                    $orderModel->addStatusToHistory($orderModel->getStatus(), $message);
                     Mage::logException($e);
                 }
             }

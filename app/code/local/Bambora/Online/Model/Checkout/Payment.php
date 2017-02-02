@@ -736,7 +736,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
      */
     public function getAcceptUrl()
     {
-        return Mage::getUrl('bambora/checkout/accept', ['_secure' => Mage::app()->getRequest()->isSecure()]);
+        return Mage::getUrl('bambora/checkout/accept', array('_secure' => Mage::app()->getRequest()->isSecure()));
     }
 
     /**
@@ -746,7 +746,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
      */
     public function getCancelUrl()
     {
-        return Mage::getUrl('bambora/checkout/cancel', ['_secure' => Mage::app()->getRequest()->isSecure()]);
+        return Mage::getUrl('bambora/checkout/cancel', array('_secure' => Mage::app()->getRequest()->isSecure()));
     }
 
     /**
@@ -756,7 +756,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
      */
     public function getCallbackUrl()
     {
-        return Mage::getUrl('bambora/checkout/callback', ['_secure' => Mage::app()->getRequest()->isSecure()]);
+        return Mage::getUrl('bambora/checkout/callback', array('_secure' => Mage::app()->getRequest()->isSecure()));
     }
 
     /**

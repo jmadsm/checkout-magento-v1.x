@@ -74,8 +74,7 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
 
                 $countInvoicedOrder++;
                 $invoiced[] = $order->getIncrementId();
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 $notInvoiced[] = $order->getIncrementId();
                 $this->_getSession()->addError(sprintf($this->bamboraHelper->_s("Order: %s returned with an error: %s"), $order->getIncrementId(), $e->getMessage()));
                 continue;
@@ -139,8 +138,7 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
 
                 $countRefundedOrder++;
                 $refunded[] = $invoice->getIncrementId();
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 $notInvoiced[] = $invoice->getIncrementId();
                 $this->_getSession()->addError(sprintf($this->bamboraHelper->_s("Invoice: %s returned with an error: %s"), $invoice->getIncrementId(), $e->getMessage()));
                 continue;
@@ -181,8 +179,7 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
 
                 $countDeleted++;
                 $deleted[] = $order->getIncrementId();
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 $notDeleted[] = $order->getIncrementId();
                 $this->_getSession()->addError(sprintf($this->bamboraHelper->_s("Delete: %s returned with an error: %s"), $order->getIncrementId(), $e->getMessage()));
                 continue;

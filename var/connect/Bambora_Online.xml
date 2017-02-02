@@ -51,7 +51,7 @@ Code refactored to comply with Magento code standard
             <max/>
          </max>
          <files>
-            <files>                                                               </files>
+            <files>                                                                 </files>
          </files>
       </package>
       <extension>

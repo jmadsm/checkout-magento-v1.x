@@ -47,6 +47,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
     {
         return $order->getPayment()->getMethodInstance();
     }
+    
 
     /**
      * Redirect Action
@@ -64,36 +65,32 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
         $payment = $order->getPayment();
 
         $pspReference = $payment->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
+        $lastSuccessfullQuoteId = $session->getLastSuccessQuoteId();
+        if (!empty($pspReference) || empty($lastSuccessfullQuoteId)) {
+            $this->_redirect('checkout/cart');
+        } else {
+            $paymentMethod = $this->getMethodInstance($order);
+            $paymentWindow = $paymentMethod->getPaymentWindow();
+            if (!isset($paymentWindow)) {
+                $this->_redirectUrl($paymentMethod->getCancelUrl());
+            } else {
+                //If payment window is set to full screen
+                if ((int)$paymentMethod->getConfigData(BamboraConstant::WINDOW_STATE, $paymentMethod->getStore()->getStoreId()) === 1) {
+                    $this->_redirectUrl($paymentWindow->url);
+                } else {
+                    $paymentData = array("paymentWindowUrl"=> $paymentMethod->getCheckoutPaymentWindowUrl(),
+                                             "bamboraCheckoutUrl"=> $paymentWindow->url,
+                                             "cancelUrl"=> $paymentMethod->getCancelUrl(),
+                                             "headerText"=> $this->bamboraHelper->_s("Thank you for using Bambora Checkout"),
+                                             "headerText2"=> $this->bamboraHelper->_s("Please wait..."));
 
-        if (!empty($pspReference) || empty($session->getLastSuccessQuoteId())) {
-            $this->_redirect('checkout/onepage/success');
-            return;
+                    $this->loadLayout();
+                    $block = $this->getLayout()->createBlock('bambora/checkout_redirect', 'bamboraredirect', $paymentData);
+                    $this->getLayout()->getBlock('content')->append($block);
+                    $this->renderLayout();
+                }
+            }
         }
-
-        $paymentMethod = $this->getMethodInstance($order);
-        $paymentWindow = $paymentMethod->getPaymentWindow();
-        if (!isset($paymentWindow)) {
-            $this->_redirect($paymentMethod->getCancelUrl());
-            return;
-        }
-
-        //If payment window is set to full screen
-        if ((int)$paymentMethod->getConfigData(BamboraConstant::WINDOW_STATE, $paymentMethod->getStore()->getStoreId()) === 1) {
-            $this->getResponse()->setRedirect($paymentWindow->url);
-            $this->getResponse()->sendResponse();
-            return;
-        }
-
-        $paymentData = array("paymentWindowUrl"=> $paymentMethod->getCheckoutPaymentWindowUrl(),
-                                 "bamboraCheckoutUrl"=> $paymentWindow->url,
-                                 "cancelUrl"=> $paymentMethod->getCancelUrl(),
-                                 "headerText"=> $this->bamboraHelper->_s("Thank you for using Bambora Checkout"),
-                                 "headerText2"=> $this->bamboraHelper->_s("Please wait..."));
-
-        $this->loadLayout();
-        $block = $this->getLayout()->createBlock('bambora/checkout_redirect', 'bamboraredirect', $paymentData);
-        $this->getLayout()->getBlock('content')->append($block);
-        $this->renderLayout();
     }
 
 
@@ -175,7 +172,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
      */
     private function validateCallback(&$message, &$transactionResponse, &$order)
     {
-        try{
+        try {
             $txnId = $this->getRequest()->getParam('txnid');
             if (!isset($txnId)) {
                 $message = "No txnid was supplied to the system!";
@@ -244,8 +241,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             if (!$this->bamboraHelper->validateCheckoutApiResult($transactionResponse, $txnId, true, $meassage)) {
                 return false;
             }
-        }catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $message = $ex->getMessage();
             return false;
         }
