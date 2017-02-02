@@ -15,7 +15,7 @@
  */
 class Bambora_Online_Model_Api_Checkout_Response_ListPaymentTypes extends Bambora_Online_Model_Api_Checkout_Response_Base
 {
-   /**
+    /**
      * @var Bambora_Online_Model_Api_Checkout_Response_Model_PaymentCollection[]
      */
     public $paymentCollections;

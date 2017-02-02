@@ -28,24 +28,21 @@ class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model
      */
     public function capture($transactionId, $captureRequest, $apikey)
     {
-        try
-        {
-            $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION) .'/transactions/'.  sprintf('%.0F',$transactionId) . '/capture';
+        try {
+            $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION) .'/transactions/'.  sprintf('%.0F', $transactionId) . '/capture';
 
             $captureRequestJson = json_encode($captureRequest);
 
-            $resultJson = $this->_callRestService($serviceUrl, $captureRequestJson, "POST", $apikey);
+            $resultJson = $this->_callRestService($serviceUrl, $captureRequestJson, Zend_Http_Client::POST, $apikey);
             $result = json_decode($resultJson, true);
 
             /** @var Bambora_Online_Model_Api_Checkout_Response_Capture */
             $captureResponse = Mage::getModel(Model::RESPONSE_CAPTURE);
             $captureResponse->meta = $this->_mapMeta($result);
 
-            if($captureResponse->meta->result)
-            {
+            if ($captureResponse->meta->result) {
                 $captureResponse->transactionOperations = array();
-                foreach($result['transactionoperations'] as $operation)
-                {
+                foreach ($result['transactionoperations'] as $operation) {
                     /** @var Bambora_Online_Model_Api_Checkout_Response_Model_TransactionOperation */
                     $transactionOperation = Mage::getModel(Model::RESPONSE_MODEL_TRANSACTIONOPERATION);
                     $transactionOperation->id = $operation['id'];
@@ -54,9 +51,7 @@ class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model
             }
 
             return $captureResponse;
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->logException($ex);
             return null;
         }
@@ -72,23 +67,20 @@ class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model
      */
     public function credit($transactionId, $creditRequest, $apikey)
     {
-        try
-        {
-            $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION).'/transactions/'.  sprintf('%.0F',$transactionId) . '/credit';
+        try {
+            $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION).'/transactions/'.  sprintf('%.0F', $transactionId) . '/credit';
             $creditRequestJson = json_encode($creditRequest);
 
-            $resultJson = $this->_callRestService($serviceUrl, $creditRequestJson, "POST",$apikey);
+            $resultJson = $this->_callRestService($serviceUrl, $creditRequestJson, Zend_Http_Client::POST, $apikey);
             $result = json_decode($resultJson, true);
 
             /** @var Bambora_Online_Model_Api_Checkout_Response_Credit */
             $creditResponse = Mage::getModel(Model::RESPONSE_CREDIT);
             $creditResponse->meta = $this->_mapMeta($result);
 
-            if($creditResponse->meta->result)
-            {
+            if ($creditResponse->meta->result) {
                 $creditResponse->transactionOperations = array();
-                foreach($result['transactionoperations'] as $operation)
-                {
+                foreach ($result['transactionoperations'] as $operation) {
                     /** @var Bambora_Online_Model_Api_Checkout_Response_Model_TransactionOperation */
                     $transactionOperation = Mage::getModel(Model::RESPONSE_MODEL_TRANSACTIONOPERATION);
                     $transactionOperation->id = $operation['id'];
@@ -97,9 +89,7 @@ class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model
             }
 
             return $creditResponse;
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->logException($ex);
             return null;
         }
@@ -114,21 +104,18 @@ class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model
      */
     public function delete($transactionId, $apikey)
     {
-        try
-        {
-            $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION).'/transactions/'.  sprintf('%.0F',$transactionId) . '/delete';
-            $resultJson = $this->_callRestService($serviceUrl, null, "POST", $apikey);
-            $result = json_decode($resultJson,true);
+        try {
+            $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION).'/transactions/'.  sprintf('%.0F', $transactionId) . '/delete';
+            $resultJson = $this->_callRestService($serviceUrl, null, Zend_Http_Client::POST, $apikey);
+            $result = json_decode($resultJson, true);
 
             /** @var Bambora_Online_Model_Api_Checkout_Response_Delete */
             $deleteResponse = Mage::getModel(Model::RESPONSE_DELETE);
             $deleteResponse->meta = $this->_mapMeta($result);
 
-            if($deleteResponse->meta->result)
-            {
+            if ($deleteResponse->meta->result) {
                 $deleteResponse->transactionOperations = array();
-                foreach($result['transactionoperations'] as $operation)
-                {
+                foreach ($result['transactionoperations'] as $operation) {
                     /** @var Bambora_Online_Model_Api_Checkout_Response_Model_TransactionOperation */
                     $transactionOperation = Mage::getModel(Model::RESPONSE_MODEL_TRANSACTIONOPERATION);
                     $transactionOperation->id = $operation['id'];
@@ -137,9 +124,7 @@ class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model
             }
 
             return $deleteResponse;
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->logException($ex);
             return null;
         }

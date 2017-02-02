@@ -67,5 +67,4 @@ class Bambora_Online_Model_Api_Checkout_Response_Model_Transaction
      * @var Bambora_Online_Model_Api_Checkout_Response_Model_Total
      */
     public $total;
-
 }

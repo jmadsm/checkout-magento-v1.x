@@ -26,16 +26,12 @@ class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function validateCheckoutApiResult($response, $id, $isBackoffice, &$message)
     {
-
-        if(!isset($response) || $response === false || !isset($response->meta))
-        {
+        if (!isset($response) || $response === false || !isset($response->meta)) {
             //Error without description
             $message = $this->_s("No answer from Bambora");
             $this->log($id, $message, Zend_Log::ERR);
             return false;
-        }
-        else if(!$response->meta->result)
-        {
+        } elseif (!$response->meta->result) {
             // Error with description
             $message = $isBackoffice ? $response->meta->message->merchant : $response->meta->message->enduser;
             $this->log($id, $response->meta->message->merchant, Zend_Log::ERR);
@@ -53,7 +49,7 @@ class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function log($id, $message, $level = null)
     {
-        $errorMessage = sprintf("(ID: %s) - %s ",$id, $message);
+        $errorMessage = sprintf("(ID: %s) - %s ", $id, $message);
         Mage::log($errorMessage, $level, 'bambora.log');
     }
 
@@ -79,17 +75,16 @@ class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function convertPriceToMinorUnits($amount, $minorUnits, $defaultMinorUnits = 2)
     {
-        if($minorUnits == "" || $minorUnits == null)
-        {
+        if ($minorUnits == "" || $minorUnits == null) {
             $minorUnits = $defaultMinorUnits;
         }
 
-        if($amount == "" || $amount == null)
-        {
+        if ($amount == "" || $amount == null) {
             return 0;
         }
 
-        return $amount * pow(10,$minorUnits);;
+        return $amount * pow(10, $minorUnits);
+        ;
     }
 
     /**
@@ -102,17 +97,15 @@ class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function convertPriceFromMinorUnits($amount, $minorUnits, $defaultMinorUnits = 2)
     {
-        if($minorUnits == "" || $minorUnits == null)
-        {
+        if ($minorUnits == "" || $minorUnits == null) {
             $minorUnits = $defaultMinorUnits;
         }
 
-        if($amount == "" || $amount == null)
-        {
+        if ($amount == "" || $amount == null) {
             return 0;
         }
 
-        return number_format($amount / pow(10,$minorUnits),$minorUnits);
+        return number_format($amount / pow(10, $minorUnits), $minorUnits);
     }
 
     /**
@@ -137,7 +130,7 @@ class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
     public function getShopLocalCode()
     {
         $localCode =  Mage::app()->getLocale()->getLocaleCode();
-        return str_replace('_','-', $localCode);
+        return str_replace('_', '-', $localCode);
     }
 
     /**

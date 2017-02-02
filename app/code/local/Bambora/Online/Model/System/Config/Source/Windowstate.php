@@ -1,8 +1,8 @@
 <?php
 /**
  * Copyright Bambora | Checkout, (c) 2016.
- * This program is free software. You are allowed to use the software but NOT allowed to modify the software. 
- * It is also not legal to do any changes to the software and distribute it in your own name / brand. 
+ * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
+ * It is also not legal to do any changes to the software and distribute it in your own name / brand.
  */
 class Bambora_Online_Model_System_Config_Source_Windowstate
 {
@@ -13,6 +13,4 @@ class Bambora_Online_Model_System_Config_Source_Windowstate
             array('value'=>1, 'label'=>Mage::helper('adminhtml')->__('Full Screen')),
         );
     }
-
 }
-?>

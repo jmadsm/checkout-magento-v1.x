@@ -19,5 +19,4 @@ class Bambora_Online_Model_Api_Checkout_Response_Model_Links
      * @var string
      */
     public $transactionoperations;
-
 }

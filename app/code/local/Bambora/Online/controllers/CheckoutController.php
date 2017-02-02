@@ -65,25 +65,22 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
 
         $pspReference = $payment->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
 
-        if(!empty($pspReference) || empty($session->getLastSuccessQuoteId()))
-        {
+        if (!empty($pspReference) || empty($session->getLastSuccessQuoteId())) {
             $this->_redirect('checkout/onepage/success');
             return;
         }
 
         $paymentMethod = $this->getMethodInstance($order);
         $paymentWindow = $paymentMethod->getPaymentWindow();
-        if(!isset($paymentWindow))
-        {
+        if (!isset($paymentWindow)) {
             $this->_redirect($paymentMethod->getCancelUrl());
             return;
         }
 
         //If payment window is set to full screen
-        if(intval($paymentMethod->getConfigData(BamboraConstant::WINDOW_STATE, $paymentMethod->getStore()->getStoreId())) === 1)
-        {
-            Mage::app()->getFrontController()->getResponse()->setRedirect($paymentWindow->url);
-            Mage::app()->getResponse()->sendResponse();
+        if ((int)$paymentMethod->getConfigData(BamboraConstant::WINDOW_STATE, $paymentMethod->getStore()->getStoreId()) === 1) {
+            $this->getResponse()->setRedirect($paymentWindow->url);
+            $this->getResponse()->sendResponse();
             return;
         }
 
@@ -111,40 +108,32 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
      */
     public function cancelAction()
     {
-		$session = Mage::getSingleton('checkout/session');
-    	$cart = Mage::getSingleton('checkout/cart');
+        $session = Mage::getSingleton('checkout/session');
+        $cart = Mage::getSingleton('checkout/cart');
         $larstOrderId = $session->getLastRealOrderId();
-		$order = Mage::getModel('sales/order')->loadByIncrementId($larstOrderId);
-		if ($order->getId())
-		{
-			$session->getQuote()->setIsActive(0)->save();
-	        $session->clear();
-    	    try
-			{
-				$order->setActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_CANCEL, true);
-            	$order->cancel()->save();
-        	}
-			catch (Mage_Core_Exception $e)
-			{
-            	Mage::logException($e);
-        	}
-			$items = $order->getItemsCollection();
-        	foreach ($items as $item)
-			{
-				try
-				{
-					$cart->addOrderItem($item);
-            	}
-				catch (Mage_Core_Exception $e)
-				{
-					$session->addError($this->__($e->getMessage()));
-                	Mage::logException($e);
-                	continue;
-            	}
-        	}
-        	$cart->save();
-		}
-		$this->_redirect('checkout/cart');
+        $order = Mage::getModel('sales/order')->loadByIncrementId($larstOrderId);
+        if ($order->getId()) {
+            $session->getQuote()->setIsActive(0)->save();
+            $session->clear();
+            try {
+                $order->setActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_CANCEL, true);
+                $order->cancel()->save();
+            } catch (Mage_Core_Exception $e) {
+                Mage::logException($e);
+            }
+            $items = $order->getItemsCollection();
+            foreach ($items as $item) {
+                try {
+                    $cart->addOrderItem($item);
+                } catch (Mage_Core_Exception $e) {
+                    $session->addError($this->__($e->getMessage()));
+                    Mage::logException($e);
+                    continue;
+                }
+            }
+            $cart->save();
+        }
+        $this->_redirect('checkout/cart');
     }
 
 
@@ -159,14 +148,10 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
         $responseCode = '400';
         $transactionResponse = null;
         $order = null;
-        if($this->validateCallback($message, $transactionResponse, $order))
-        {
-            $message = $this->processCallback($transactionResponse, $responseCode);
-        }
-        else
-        {
-            if(isset($order))
-            {
+        if ($this->validateCallback($message, $transactionResponse, $order)) {
+            $message = $this->processCallback($transactionResponse, $order, $responseCode);
+        } else {
+            if (isset($order)) {
                 $order->addStatusHistoryComment("Callback from Bambora returned with an error: ". $message);
                 $order->save();
             }
@@ -184,86 +169,84 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
      * Validate the callback
      *
      * @param string &$message
+     * @param Bambora_Online_Model_Api_Checkout_Response_Transaction &$transactionResponse
+     * @param Mage_Sales_Model_Order &$order
      * @return boolean
      */
     private function validateCallback(&$message, &$transactionResponse, &$order)
     {
-        if(!isset($_GET["txnid"]))
-        {
-            $message = "No GET(txnid) was supplied to the system!";
-		    return false;
-        }
-
-        if (!isset($_GET["orderid"]))
-	    {
-            $message = "No GET(orderid) was supplied to the system!";
-		    return false;
-		}
-
-        if (!isset($_GET["amount"])) {
-            $message = "No GET(amount) supplied to the system!";
-            return false;
-        }
-
-        if (!isset($_GET["currency"])) {
-            $message = "No GET(currency) supplied to the system!";
-            return false;
-        }
-        /** @var Mage_Sales_Model_Order */
-        $order = Mage::getModel('sales/order')->loadByIncrementId($_GET["orderid"]);
-        if(!isset($order) || !$order->getId())
-        {
-			$message = "The order object could not be loaded";
-			return false;
-        }
-        if($order->getIncrementId() != $_GET["orderid"])
-        {
-            $message = "The loaded order id does not match the callback GET(orderId)";
-			return false;
-        }
-        if($this->getMethod($order) !== Bambora_Online_Model_Checkout_Payment::METHOD_CODE)
-        {
-            $message = "The Payment method of the order dont match. Order method: ". $order->getPayment()->getMethod();
-			return false;
-        }
-
-
-        $method = $this->getMethodInstance($order);
-        $storeId = $order->getStoreId();
-        $storeMd5 = $method->getConfigData(BamboraConstant::MD5_KEY, $storeId);
-        if (!empty($storeMd5))
-		{
-			$accept_params = $_GET;
-			$var = "";
-			foreach ($accept_params as $key => $value)
-			{
-				if($key != "hash")
-                {
-					$var .= $value;
-                }
-			}
-
-            $storeHash = md5($var . $storeMd5);
-            if ($storeHash != $_GET["hash"])
-			{
-				$message = "Hash validation failed - Please check your MD5 key";
-				return false;
+        try{
+            $txnId = $this->getRequest()->getParam('txnid');
+            if (!isset($txnId)) {
+                $message = "No txnid was supplied to the system!";
+                return false;
             }
-        }
+            $orderId = $this->getRequest()->getParam('orderid');
+            if (!isset($orderId)) {
+                $message = "No orderid was supplied to the system!";
+                return false;
+            }
+            $amount = $this->getRequest()->getParam('amount');
+            if (!isset($amount)) {
+                $message = "No amount supplied to the system!";
+                return false;
+            }
+            $currency = $this->getRequest()->getParam('currency');
+            if (!isset($currency)) {
+                $message = "No GET(currency) supplied to the system!";
+                return false;
+            }
+            /** @var Mage_Sales_Model_Order */
+            $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+            if (!isset($order)) {
+                $message = "The order object could not be loaded";
+                return false;
+            }
+            if ($order->getIncrementId() != $orderId) {
+                $message = "The loaded order id does not match the callback GET(orderId)";
+                return false;
+            }
+            if ($this->getMethod($order) !== Bambora_Online_Model_Checkout_Payment::METHOD_CODE) {
+                $message = "The Payment method of the order dont match. Order method: ". $order->getPayment()->getMethod();
+                return false;
+            }
 
-        //Validate Transaction
-        $transactionId = $_GET['txnid'];
-        $apiKey = $method->getApiKey($order->getStoreId());
+            $method = $this->getMethodInstance($order);
+            $storeId = $order->getStoreId();
+            $storeMd5 = $method->getConfigData(BamboraConstant::MD5_KEY, $storeId);
+            if (!empty($storeMd5)) {
+                $accept_params = $this->getRequest()->getParams();
+                $var = "";
+                foreach ($accept_params as $key => $value) {
+                    if ($key != "hash") {
+                        $var .= $value;
+                    }
+                }
 
-        /** @var Bambora_Online_Model_Api_Checkout_Merchant */
-        $merchantApi = Mage::getModel(CheckoutApi::API_MERCHANT);
+                $storeHash = md5($var . $storeMd5);
+                $hash = $this->getRequest()->getParam('hash');
+                if ($storeHash != $hash) {
+                    $message = "Hash validation failed - Please check your MD5 key";
+                    return false;
+                }
+            }
 
-        $transactionResponse = $merchantApi->getTransaction($transactionId,$apiKey);
+            //Validate Transaction
+            $apiKey = $method->getApiKey($order->getStoreId());
 
-        //Validate transaction
-        $meassage = "";
-        if(!$this->bamboraHelper->validateCheckoutApiResult($transactionResponse, $transactionId, true, $meassage))
+            /** @var Bambora_Online_Model_Api_Checkout_Merchant */
+            $merchantApi = Mage::getModel(CheckoutApi::API_MERCHANT);
+
+            $transactionResponse = $merchantApi->getTransaction($txnId, $apiKey);
+
+            //Validate transaction
+            $meassage = "";
+            if (!$this->bamboraHelper->validateCheckoutApiResult($transactionResponse, $txnId, true, $meassage)) {
+                return false;
+            }
+        }catch(Exception $ex)
         {
+            $message = $ex->getMessage();
             return false;
         }
 
@@ -275,63 +258,47 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
      * Process the callback
      *
      * @param Bambora_Online_Model_Api_Checkout_Response_Transaction $transactionResponse
+     * @param Mage_Sales_Model_Order $order
      * @param string &$responseCode
      */
-    private function processCallback($transactionResponse, &$responseCode)
+    private function processCallback($transactionResponse, $order, &$responseCode)
     {
         $message = '';
-        $order = Mage::getModel('sales/order')->loadByIncrementId($_GET["orderid"]);
         $payment = $order->getPayment();
-        try
-        {
+        try {
             $pspReference = $payment->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
-            if(empty($pspReference) && !$order->isCanceled())
-            {
+            if (empty($pspReference) && !$order->isCanceled()) {
                 $method = $this->getMethodInstance($order);
                 $storeId = $order->getStoreId();
 
                 $this->updatePaymentData($order, $method->getConfigData(BamboraConstant::ORDER_STATUS_AFTER_PAYMENT, $storeId), $transactionResponse);
-
-                if (intval($method->getConfigData(BamboraConstant::ADD_SURCHARGE_TO_PAYMENT, $storeId)) == 1 && isset($_GET['txnfee']) && floatval($_GET['txnfee']) > 0)
-                {
+                $feeAmount = $transactionResponse->transaction->total->feeamount;
+                if ((int)$method->getConfigData(BamboraConstant::ADD_SURCHARGE_TO_PAYMENT, $storeId) == 1 && isset($feeAmount) && (int)($feeAmount) > 0) {
                     $this->addSurchargeItemToOrder($order, $transactionResponse);
                 }
 
-                if (intval($method->getConfigData(BamboraConstant::SEND_MAIL_ORDER_CONFIRMATION, $storeId) == 1))
-                {
+                if ((int)$method->getConfigData(BamboraConstant::SEND_MAIL_ORDER_CONFIRMATION, $storeId) == 1) {
                     $this->sendOrderEmail($order);
                 }
 
-                if(intval($method->getConfigData(BamboraConstant::INSTANT_INVOICE, $storeId)) == 1)
-                {
-                    if(intval($method->getConfigData(BamboraConstant::REMOTE_INTERFACE, $storeId)) == 1 || intval($method->getConfigData(BamboraConstant::INSTANT_CAPTURE, $storeId)) === 1)
-                    {
+                if ((int)$method->getConfigData(BamboraConstant::INSTANT_INVOICE, $storeId) == 1) {
+                    if ((int)$method->getConfigData(BamboraConstant::REMOTE_INTERFACE, $storeId) == 1 || (int)$method->getConfigData(BamboraConstant::INSTANT_CAPTURE, $storeId) == 1) {
                         $this->createInvoice($order);
-                    }
-                    else
-                    {
+                    } else {
                         $order->addStatusHistoryComment($this->bamboraHelper->_s("Could not use instant invoice."). ' - '. $this->bamboraHelper->_s("Please enable remote payment processing from the module configuration"));
                         $order->save();
                     }
                 }
                 $message = "Callback Success - Order created";
-            }
-            else
-            {
-                if($order->isCanceled())
-                {
+            } else {
+                if ($order->isCanceled()) {
                     $message = "Callback Success - Order was canceled by Magento";
-                }
-                else
-                {
+                } else {
                     $message = "Callback Success - Order already created";
                 }
             }
             $responseCode = '200';
-
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             $payment->setAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE, "");
             $payment->save();
             $responseCode = '500';
@@ -361,7 +328,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
         $payment->setCcNumberEnc($transactionResponse->transaction->information->primaryAccountnumbers[0]->number);
 
         $methodInstance = $this->getMethodInstance($order);
-        $isInstantCapture = intval($methodInstance->getConfigData(BamboraConstant::INSTANT_CAPTURE, $order->getStoreId())) === 1 ? true : false;
+        $isInstantCapture = (int)$methodInstance->getConfigData(BamboraConstant::INSTANT_CAPTURE, $order->getStoreId()) === 1 ? true : false;
 
         $payment->setAdditionalInformation(BamboraConstant::INSTANT_CAPTURE, $isInstantCapture);
 
@@ -382,13 +349,11 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
      */
     private function addSurchargeItemToOrder($order, $transactionResponse)
     {
-        $baseFeeAmount = floatval($this->bamboraHelper->convertPriceFromMinorUnits($transactionResponse->transaction->total->feeamount, $transactionResponse->transaction->currency->minorunits));
+        $baseFeeAmount = (float)$this->bamboraHelper->convertPriceFromMinorUnits($transactionResponse->transaction->total->feeamount, $transactionResponse->transaction->currency->minorunits);
         $feeAmount = Mage::helper('directory')->currencyConvert($baseFeeAmount, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode());
 
-        foreach($order->getAllItems() as $item)
-        {
-            if($item->getSku() === BamboraConstant::BAMBORA_SURCHARGE)
-            {
+        foreach ($order->getAllItems() as $item) {
+            if ($item->getSku() === BamboraConstant::BAMBORA_SURCHARGE) {
                 return;
             }
         }
@@ -453,8 +418,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
      */
     private function createInvoice($order)
     {
-        if($order->canInvoice())
-        {
+        if ($order->canInvoice()) {
             $invoice = $order->prepareInvoice();
             $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
             $invoice->register();
@@ -466,8 +430,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             $transactionSave->save();
 
             $method = $this->getMethodInstance($order);
-            if(intval($method->getConfigData(BamboraConstant::INSTANT_INVOICE_MAIL, $order->getStoreId())) == 1)
-            {
+            if ((int)$method->getConfigData(BamboraConstant::INSTANT_INVOICE_MAIL, $order->getStoreId()) == 1) {
                 $invoice->sendEmail();
                 $order->addStatusHistoryComment(sprintf($this->bamboraHelper->_s("Notified customer about invoice #%s"), $invoice->getId()))
                     ->setIsCustomerNotified(true);

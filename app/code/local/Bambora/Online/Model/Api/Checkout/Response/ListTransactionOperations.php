@@ -19,5 +19,4 @@ class Bambora_Online_Model_Api_Checkout_Response_ListTransactionOperations exten
      * @var Bambora_Online_Model_Api_Checkout_Response_Model_TransactionOperation[]
      */
     public $transactionOperations;
-
 }

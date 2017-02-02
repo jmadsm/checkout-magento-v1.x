@@ -28,33 +28,29 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
         $this->bamboraHelper = Mage::helper('bambora');
     }
 
-	/**
-	 * Mass Invoice and Capture Action
-	 */
-	public function bamboraMassCaptureAction()
-	{
-		$orderIds = $this->getRequest()->getPost('order_ids', array());
+    /**
+     * Mass Invoice and Capture Action
+     */
+    public function bamboraMassCaptureAction()
+    {
+        $orderIds = $this->getRequest()->getPost('order_ids', array());
         $method = Mage::getModel('bamboracheckout/payment');
         $countInvoicedOrder = 0;
         $invoiced = array();
         $notInvoiced = array();
 
-		foreach ($orderIds as $orderId)
-		{
+        foreach ($orderIds as $orderId) {
             $order = Mage::getModel('sales/order');
-            try
-            {
+            try {
                 $order = $order->load($orderId);
 
-                if(!$order->canInvoice())
-                {
+                if (!$order->canInvoice()) {
                     $notInvoiced[] = $order->getIncrementId(). '('.$this->bamboraHelper->_s("Invoice not available"). ')';
                     continue;
                 }
 
                 $pspReference = $order->getPayment()->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
-                if(empty($pspReference))
-                {
+                if (empty($pspReference)) {
                     $notInvoiced[] = $order->getIncrementId() . '('.$this->bamboraHelper->_s("Bambora transaction not found"). ')';
                     continue;
                 }
@@ -69,10 +65,9 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
                   ->addObject($invoice->getOrder());
                 $transactionSave->save();
                 $storeId =  $order->getStoreId();
-                if(intval($method->getConfigData(BamboraConstant::MASS_CAPTURE_INVOICE_MAIL, $storeId)) == 1)
-                {
+                if (intval($method->getConfigData(BamboraConstant::MASS_CAPTURE_INVOICE_MAIL, $storeId)) == 1) {
                     $invoice->sendEmail();
-                    $order->addStatusHistoryComment(sprintf($this->bamboraHelper->_s("Notified customer about invoice #%s", $invoice->getId())))
+                    $order->addStatusHistoryComment(sprintf($this->bamboraHelper->_s("Notified customer about invoice #%s"), $invoice->getId()))
                         ->setIsCustomerNotified(true);
                     $order->save();
                 }
@@ -80,8 +75,7 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
                 $countInvoicedOrder++;
                 $invoiced[] = $order->getIncrementId();
             }
-            catch (Exception $e)
-            {
+            catch (Exception $e) {
                 $notInvoiced[] = $order->getIncrementId();
                 $this->_getSession()->addError(sprintf($this->bamboraHelper->_s("Order: %s returned with an error: %s"), $order->getIncrementId(), $e->getMessage()));
                 continue;
@@ -90,43 +84,36 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
 
         $countNonInvoicedOrder = count($orderIds) - $countInvoicedOrder;
 
-        if ($countNonInvoicedOrder && $countInvoicedOrder)
-        {
+        if ($countNonInvoicedOrder && $countInvoicedOrder) {
             $this->_getSession()->addError(sprintf($this->bamboraHelper->_s("%s order(s) cannot be Invoiced and Captured."), $countNonInvoicedOrder). ' (' .implode(" , ", $notInvoiced) . ')');
-        }
-        elseif ($countNonInvoicedOrder)
-        {
+        } elseif ($countNonInvoicedOrder) {
             $this->_getSession()->addError($this->bamboraHelper->_s("You cannot Invoice and Capture the order(s)."). ' (' .implode(" , ", $notInvoiced) . ')');
         }
 
-        if ($countInvoicedOrder)
-        {
+        if ($countInvoicedOrder) {
             $this->_getSession()->addSuccess(sprintf($this->bamboraHelper->_s("You Invoiced and Captured %s order(s)."), $countInvoicedOrder). ' (' .implode(" , ", $invoiced) . ')');
         }
 
         $this->_redirect('adminhtml/sales_order/index');
-	}
+    }
 
     /**
      * Mass Creditmemo and Refund Action
      */
     public function bamboraMassRefundAction()
-	{
-		$invoiceIds = $this->getRequest()->getPost('invoice_ids', array());
+    {
+        $invoiceIds = $this->getRequest()->getPost('invoice_ids', array());
         $countRefundedOrder = 0;
         $refunded = array();
         $notRefunded = array();
 
-		foreach ($invoiceIds as $invoiceId)
-		{
+        foreach ($invoiceIds as $invoiceId) {
             /** @var Mage_Sales_Model_Order_Invoice $invoice */
             $invoice = Mage::getModel('sales/order_invoice');
-            try
-            {
+            try {
                 $invoice = $invoice->load($invoiceId);
 
-                if(!$invoice->canRefund())
-                {
+                if (!$invoice->canRefund()) {
                     $notRefunded[] = $invoice->getIncrementId(). '('.$this->bamboraHelper->_s("Creditmemo not available"). ')';
                     continue;
                 }
@@ -134,8 +121,7 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
                 $order = $invoice->getOrder();
 
                 $pspReference = $order->getPayment()->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
-                if(empty($pspReference))
-                {
+                if (empty($pspReference)) {
                     $notInvoiced[] = $order->getIncrementId() . '('.$this->bamboraHelper->_s("Bambora transaction not found"). ')';
                     continue;
                 }
@@ -154,8 +140,7 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
                 $countRefundedOrder++;
                 $refunded[] = $invoice->getIncrementId();
             }
-            catch (Exception $e)
-            {
+            catch (Exception $e) {
                 $notInvoiced[] = $invoice->getIncrementId();
                 $this->_getSession()->addError(sprintf($this->bamboraHelper->_s("Invoice: %s returned with an error: %s"), $invoice->getIncrementId(), $e->getMessage()));
                 continue;
@@ -164,46 +149,40 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
 
         $countNonRefundedOrder = count($invoiceIds) - $countRefundedOrder;
 
-        if ($countNonRefundedOrder && $countRefundedOrder)
-        {
+        if ($countNonRefundedOrder && $countRefundedOrder) {
             $this->_getSession()->addError(sprintf($this->bamboraHelper->_s("%s invoice(s) cannot be Refunded."), $countNonRefundedOrder). ' (' .implode(" , ", $notRefunded) . ')');
-        }
-        elseif ($countNonRefundedOrder)
-        {
+        } elseif ($countNonRefundedOrder) {
             $this->_getSession()->addError($this->bamboraHelper->_s("You cannot Refund the invoice(s)."). ' (' .implode(" , ", $notRefunded) . ')');
         }
 
-        if ($countRefundedOrder)
-        {
+        if ($countRefundedOrder) {
             $this->_getSession()->addSuccess(sprintf($this->bamboraHelper->_s("You Refunded %s invoice(s)."), $countRefundedOrder). ' (' .implode(" , ", $refunded) . ')');
         }
 
         $this->_redirect('adminhtml/sales_invoice/index');
-	}
+    }
 
     /**
      * Mass Delete Action
      */
     public function bamboraMassDeleteAction()
-	{
-		$ids = $this->getRequest()->getPost('order_ids', array());
+    {
+        $ids = $this->getRequest()->getPost('order_ids', array());
         $countDeleted = 0;
         $deleted = array();
         $notDeleted = array();
 
-		foreach ($ids as $id)
-		{
-            $order = Mage::getModel('sales/order');;
-            try
-            {
+        foreach ($ids as $id) {
+            $order = Mage::getModel('sales/order');
+            ;
+            try {
                 $order = $order->load($id);
                 $order->delete();
 
                 $countDeleted++;
                 $deleted[] = $order->getIncrementId();
             }
-            catch (Exception $e)
-            {
+            catch (Exception $e) {
                 $notDeleted[] = $order->getIncrementId();
                 $this->_getSession()->addError(sprintf($this->bamboraHelper->_s("Delete: %s returned with an error: %s"), $order->getIncrementId(), $e->getMessage()));
                 continue;
@@ -212,20 +191,25 @@ class Bambora_Online_Adminhtml_MassactionController extends Mage_Adminhtml_Contr
 
         $countNonDeleted = count($ids) - $countDeleted;
 
-        if ($countNonDeleted && $countDeleted)
-        {
+        if ($countNonDeleted && $countDeleted) {
             $this->_getSession()->addError(sprintf($this->bamboraHelper->_s("%s order(s) cannot be Deleted."), $countNonDeleted). ' (' .implode(" , ", $notDeleted) . ')');
-        }
-        elseif ($countNonDeleted)
-        {
+        } elseif ($countNonDeleted) {
             $this->_getSession()->addError($this->bamboraHelper->_s("You cannot Delete the order(s)."). ' (' .implode(" , ", $notDeleted) . ')');
         }
 
-        if ($countDeleted)
-        {
+        if ($countDeleted) {
             $this->_getSession()->addSuccess(sprintf($this->bamboraHelper->_s("You Deleted %s order(s)."), $countDeleted). ' (' .implode(" , ", $deleted) . ')');
         }
 
         $this->_redirect('adminhtml/sales_order/index');
-	}
+    }
+
+    /**
+     *
+     * @return mixed
+     */
+    protected function _isAllowed()
+    {
+        return parent::_isAllowed();
+    }
 }

@@ -27,5 +27,4 @@ class Bambora_Online_Model_Api_Checkout_Request_Credit
      * @var Bambora_Online_Model_Api_Checkout_Request_Model_Line[]
      */
     public $invoicelines;
-
 }

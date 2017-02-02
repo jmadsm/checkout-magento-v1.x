@@ -15,7 +15,7 @@
  */
 use Bambora_Online_Helper_BamboraConstant as BamboraConstant;
 
-class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info  extends Mage_Adminhtml_Block_Template  implements Mage_Adminhtml_Block_Widget_Tab_Interface
+class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Adminhtml_Block_Template implements Mage_Adminhtml_Block_Widget_Tab_Interface
 {
     /**
      * @var Bambora_Online_Helper_Data
@@ -57,19 +57,16 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info  extends Mage_Adm
      */
     public function getPaymentInformationHtml()
     {
-        if(!$this->isRemoteInterfaceEnabled())
-        {
+        if (!$this->isRemoteInterfaceEnabled()) {
             return $this->bamboraHelper->_s("Please enable remote payment processing from the module configuration");
         }
-        try
-        {
+        try {
             $order = $this->getOrder();
             /** @var Bambora_Online_Model_Checkout_Payment $paymentMethod */
             $paymentMethod = $order->getPayment()->getMethodInstance();
             $transactionId = $order->getPayment()->getAdditionalInformation($paymentMethod::PSP_REFERENCE);
 
-            if(empty($transactionId))
-            {
+            if (empty($transactionId)) {
                 return $this->bamboraHelper->_s("There is not registered any payment for this order yet!");
             }
 
@@ -77,15 +74,12 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info  extends Mage_Adm
             $paymentInfoHtml = $this->createCheckoutTransactionHtml($bamboraTransaction);
 
             $bamboraTransactionOperations = $paymentMethod->getTransactionOperations($transactionId, $order->getIncrementId());
-            if(count($bamboraTransactionOperations) > 0)
-            {
+            if (count($bamboraTransactionOperations) > 0) {
                 $paymentInfoHtml .= $this->createCheckoutTransactionOperationsHtml($bamboraTransactionOperations);
             }
 
             return $paymentInfoHtml;
-        }
-        catch(Exception $e)
-        {
+        } catch (Exception $e) {
             return $e->getMessage();
         }
     }
@@ -98,7 +92,6 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info  extends Mage_Adm
      */
     private function createCheckoutTransactionHtml($transaction)
     {
-
         $res = "<table border='0' width='100%'>";
         $res .= '<tr><td colspan="2" class="bambora_table_title"><strong>Bambora Checkout</strong></td></tr>';
 
@@ -143,13 +136,12 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info  extends Mage_Adm
      */
     private function checkoutStatus($status)
     {
-        if(!isset($status))
-        {
+        if (!isset($status)) {
             return "";
         }
-        $firstLetter = substr($status,0,1);
+        $firstLetter = substr($status, 0, 1);
         $firstLetterToUpper = strtoupper($firstLetter);
-        $result = str_replace($firstLetter,$firstLetterToUpper,$status);
+        $result = str_replace($firstLetter, $firstLetterToUpper, $status);
 
         return $result;
     }
@@ -200,39 +192,32 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info  extends Mage_Adm
     private function createTranactionOperationItems($transactionOperations)
     {
         $res = "";
-        foreach($transactionOperations as $operation)
-        {
+        foreach ($transactionOperations as $operation) {
             $res .= '<tr>';
             $res .= '<td>' . $this->formatDate($operation->createddate, Mage_Core_Model_Locale::FORMAT_TYPE_SHORT, true).'</td>' ;
             $res .= '<td>' . $operation->action  .'</td>';
             $res .= '<td>' . $operation->currency->code . "&nbsp;" . $this->bamboraHelper->convertPriceFromMinorUnits($operation->amount, $operation->currency->minorunits) . '</td>';
 
-            if(is_array($operation->ecis) && count($operation->ecis)> 0)
-            {
+            if (is_array($operation->ecis) && count($operation->ecis)> 0) {
                 $res .= '<td>' . $operation->ecis[0]->value .'</td>';
-            }
-            else
-            {
+            } else {
                 $res .= '<td> - </td>';
             }
 
             $res .= '<td>' . $operation->id . '</td>';
 
-            if($operation->parenttransactionoperationid > 0)
-            {
+            if ($operation->parenttransactionoperationid > 0) {
                 $res .= '<td>' . $operation->parenttransactionoperationid .'</td>';
-            }
-            else
-            {
+            } else {
                 $res .= '<td> - </td>';
             }
 
-            if(count($operation->transactionoperations) > 0)
-            {
+            if (count($operation->transactionoperations) > 0) {
                 $res .= $this->createTranactionOperationItems($operation->transactionoperations);
             }
             $res .= '</tr>';
         }
+
         return $res;
     }
 
@@ -254,8 +239,7 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info  extends Mage_Adm
     {
         /** @var Mage_Sales_Model_Order_Payment $payment */
         $payment = $this->getOrder()->getPayment();
-        if($payment->getMethod() === Bambora_Online_Model_Checkout_Payment::METHOD_CODE && $this->isRemoteInterfaceEnabled())
-        {
+        if ($payment->getMethod() === Bambora_Online_Model_Checkout_Payment::METHOD_CODE && $this->isRemoteInterfaceEnabled()) {
             return true;
         }
         return false;

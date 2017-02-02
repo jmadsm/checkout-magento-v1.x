@@ -29,21 +29,19 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
      */
     public function getPaymentTypes($currency, $amount, $apiKey)
     {
-        try{
+        try {
             $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_MERCHANT) . '/paymenttypes?currency='. $currency . '&amount=' . $amount;
-            $resultJson = $this->_callRestService($serviceUrl, null, "GET", $apiKey);
+            $resultJson = $this->_callRestService($serviceUrl, null, Zend_Http_Client::GET, $apiKey);
             $result = json_decode($resultJson, true);
 
             /** @var Bambora_Online_Model_Api_Checkout_Response_ListPaymentTypes */
             $listPaymentTypesResponse = Mage::getModel(Model::RESPONSE_LISTPAYMENTTYPES);
             $listPaymentTypesResponse->meta = $this->_mapMeta($result);
 
-            if($listPaymentTypesResponse->meta->result)
-            {
+            if ($listPaymentTypesResponse->meta->result) {
                 $listPaymentTypesResponse->paymentCollections = array();
 
-                foreach($result['paymentcollections'] as $payment)
-                {
+                foreach ($result['paymentcollections'] as $payment) {
                     /** @var Bambora_Online_Model_Api_Checkout_Response_Model_PaymentCollection */
                     $paymentCollection = Mage::getModel(Model::RESPONSE_MODEL_PAYMENTCOLLECTION);
                     $paymentCollection->displayName = $payment['displayname'];
@@ -51,8 +49,7 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
                     $paymentCollection->name = $payment['name'];
                     $paymentCollection->paymentGroups = array();
 
-                    foreach($payment['paymentgroups'] as $group)
-                    {
+                    foreach ($payment['paymentgroups'] as $group) {
                         /** @var Bambora_Online_Model_Api_Checkout_Response_Model_PaymentGroup */
                         $paymentGroup = Mage::getModel(Model::RESPONSE_MODEL_PAYMENTGROUP);
                         $paymentGroup->displayName = $group['displayname'];
@@ -60,8 +57,7 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
                         $paymentGroup->name = $group['name'];
                         $paymentGroup->paymentTypes = array();
 
-                        foreach($group['paymenttypes'] as $type)
-                        {
+                        foreach ($group['paymenttypes'] as $type) {
                             /** @var Bambora_Online_Model_Api_Checkout_Response_Model_PaymentType */
                             $paymentType = Mage::getModel(Model::RESPONSE_MODEL_PAYMENTYPE);
                             $paymentType->displayName = $type['displayname'];
@@ -86,9 +82,7 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
             }
 
             return $listPaymentTypesResponse;
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->logException($ex);
             return null;
         }
@@ -102,20 +96,18 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
      * @return Bambora_Online_Model_Api_Checkout_Response_Transaction
      */
     public function getTransaction($transactionId, $apiKey)
-	{
-        try
-        {
+    {
+        try {
             $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_MERCHANT) . '/transactions/' . sprintf('%.0F', $transactionId);
 
-            $resultJson = $this->_callRestService($serviceUrl, null, "GET", $apiKey);
+            $resultJson = $this->_callRestService($serviceUrl, null, Zend_Http_Client::GET, $apiKey);
             $result = json_decode($resultJson, true);
 
             /** @var Bambora_Online_Model_Api_Checkout_Response_Transaction */
             $transactionResponse = Mage::getModel(Model::RESPONSE_TRANSACTION);
             $transactionResponse->meta = $this->_mapMeta($result);
 
-            if($transactionResponse->meta->result)
-            {
+            if ($transactionResponse->meta->result) {
                 $result = $result['transaction'];
 
                 /** @var Bambora_Online_Model_Api_Checkout_Response_Model_Transaction */
@@ -143,16 +135,14 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
                 /** @var Bambora_Online_Model_Api_Checkout_Response_Model_Information */
                 $information = Mage::getModel(Model::RESPONSE_MODEL_INFORMATION);
                 $information->acquirers = array();
-                foreach($result['information']['acquirers'] as $acq)
-                {
+                foreach ($result['information']['acquirers'] as $acq) {
                     /** @var Bambora_Online_Model_Api_Checkout_Response_Model_Acquirer */
                     $acquirer = Mage::getModel(Model::RESPONSE_MODEL_ACQUIRER);
                     $acquirer->name = $acq['name'];
                     $information->acquirers[] = $acquirer;
                 }
                 $information->paymentTypes = array();
-                foreach($result['information']['paymenttypes'] as $type)
-                {
+                foreach ($result['information']['paymenttypes'] as $type) {
                     /** @var Bambora_Online_Model_Api_Checkout_Response_Model_PaymentType */
                     $paymentType = Mage::getModel(Model::RESPONSE_MODEL_PAYMENTYPE);
                     $paymentType->displayName = $type['displayname'];
@@ -161,8 +151,7 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
                     $information->paymentTypes[] = $paymentType;
                 }
                 $information->primaryAccountnumbers = array();
-                foreach($result['information']['primaryaccountnumbers'] as $accountNumber)
-                {
+                foreach ($result['information']['primaryaccountnumbers'] as $accountNumber) {
                     /** @var Bambora_Online_Model_Api_Checkout_Response_Model_PrimaryAccountnumber */
                     $primaryAccountnumber = Mage::getModel(Model::RESPONSE_MODEL_PRIMARYACCOUNTNUMBER);
                     $primaryAccountnumber->number = $accountNumber['number'];
@@ -202,13 +191,11 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
             }
 
             return $transactionResponse;
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->logException($ex);
             return null;
         }
-	}
+    }
 
     /**
      * Returns a list of transaction operations based on the transactionid
@@ -219,18 +206,16 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
      */
     public function getTransactionOperations($transactionId, $apiKey)
     {
-
         $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_MERCHANT) . '/transactions/' . sprintf('%.0F', $transactionId).'/transactionoperations';
 
-        $resultJson = $this->_callRestService($serviceUrl, null, "GET", $apiKey);
+        $resultJson = $this->_callRestService($serviceUrl, null, Zend_Http_Client::GET, $apiKey);
         $result = json_decode($resultJson, true);
 
         /** @var Bambora_Online_Model_Api_Checkout_Response_ListTransactionOperations */
         $transactionOperationResponse = Mage::getModel(Model::RESPONSE_LISTTRANSACTIONOPERATIONS);
         $transactionOperationResponse->meta = $this->_mapMeta($result);
 
-        if($transactionOperationResponse->meta->result)
-        {
+        if ($transactionOperationResponse->meta->result) {
             $operations = $result['transactionoperations'];
             $transactionOperations = $this->mapTransactionOperation($operations);
             $transactionOperationResponse->transactionOperations = $transactionOperations;
@@ -249,8 +234,7 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
     {
         $transactionOperations = array();
 
-        foreach($operations as $operation)
-        {
+        foreach ($operations as $operation) {
             /** @var Bambora_Online_Model_Api_Checkout_Response_Model_TransactionOperation */
             $transactionOperation = Mage::getModel(Model::RESPONSE_MODEL_TRANSACTIONOPERATION);
             $transactionOperation->acquirername = $this->getValue($operation, 'acquirername');
@@ -267,8 +251,8 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
             $apiUser->email = $this->getValue($operation, 'email');
 
             $transactionOperation->apiuser = $apiUser;
-            $transactionOperation->clientipaddress = $this->getValue($operation,'clientipaddress');
-            $transactionOperation->createddate = $this->getValue($operation,'createddate');
+            $transactionOperation->clientipaddress = $this->getValue($operation, 'clientipaddress');
+            $transactionOperation->createddate = $this->getValue($operation, 'createddate');
 
             /** @var Bambora_Online_Model_Api_Checkout_Response_Model_Currency */
             $currency = Mage::getModel(Model::RESPONSE_MODEL_CURRENCY);
@@ -281,10 +265,8 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
             $transactionOperation->currentbalance = $this->getValue($operation, 'currentbalance');
             $transactionOperation->ecis = array();
             $ecis = $this->getValue($operation, 'ecis');
-            if(is_array($ecis))
-            {
-                foreach($ecis as $ec)
-                {
+            if (is_array($ecis)) {
+                foreach ($ecis as $ec) {
                     /** @var Bambora_Online_Model_Api_Checkout_Response_Model_Ecis */
                     $eci = Mage::getModel(Model::RESPONSE_MODEL_ECIS);
                     $eci->value = $this->getValue($ec, 'value');
@@ -297,10 +279,8 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
 
             $transactionOperation->paymenttypes = array();
             $paymenttypes = $this->getValue($operation, 'paymenttypes');
-            if(is_array($paymenttypes))
-            {
-                foreach($paymenttypes as $type)
-                {
+            if (is_array($paymenttypes)) {
+                foreach ($paymenttypes as $type) {
                     /** @var Bambora_Online_Model_Api_Checkout_Response_Model_PaymentType */
                     $paymentType = Mage::getModel(Model::RESPONSE_MODEL_PAYMENTYPE);
                     $paymentType->id = $this->getValue($type, 'id');
@@ -312,8 +292,7 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
             $transactionOperation->subaction = $this->getValue($operation, 'subaction');
 
             $transactionoperations = $this->getValue($operation, 'transactionoperations');
-            if(is_array($transactionoperations) && count($transactionoperations) > 0 )
-            {
+            if (is_array($transactionoperations) && count($transactionoperations) > 0) {
                 $transactionOperation->transactionoperations = $this->mapTransactionOperation($transactionoperations);
             }
 
@@ -324,20 +303,14 @@ class Bambora_Online_Model_Api_Checkout_Merchant extends Bambora_Online_Model_Ap
 
     private function getValue($array, $key)
     {
-        if(array_key_exists($key, $array))
-        {
+        if (array_key_exists($key, $array)) {
             return $array[$key];
-        }
-        else
-        {
-            foreach ($array as $k=>$v)
-            {
-                if (!is_array($v))
-                {
+        } else {
+            foreach ($array as $k=>$v) {
+                if (!is_array($v)) {
                     continue;
                 }
-                if (array_key_exists($key, $v))
-                {
+                if (array_key_exists($key, $v)) {
                     return $v[$key];
                 }
             }

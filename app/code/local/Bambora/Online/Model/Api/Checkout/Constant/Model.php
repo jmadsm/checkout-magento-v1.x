@@ -56,12 +56,4 @@ class Bambora_Online_Model_Api_Checkout_Constant_Model
     const RESPONSE_MODEL_TRANSACTIONOPERATION = 'bamboracheckoutresponsemodel/TransactionOperation';
     const RESPONSE_MODEL_APIUSER = 'bamboracheckoutresponsemodel/ApiUser';
     const RESPONSE_MODEL_ECIS = 'bamboracheckoutresponsemodel/Ecis';
-
-
-
-
-
-
-
-
 }

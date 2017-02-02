@@ -46,32 +46,30 @@ abstract class Bambora_Online_Model_Api_Checkout_Base
      *
      * @param string $serviceUrl
      * @param mixed $jsonData
-     * @param string $postOrGet
+     * @param string $method //POST OR GET
      * @param string $apiKey
      * @return mixed
      */
-    protected function _callRestService($serviceUrl, $jsonData, $postOrGet, $apiKey)
+    protected function _callRestService($serviceUrl, $jsonData, $method, $apiKey)
     {
+        $contentLength = isset($jsonData) ? strlen($jsonData) : 0;
         $headers = array(
            'Content-Type: application/json',
-           'Content-Length: ' . isset($jsonData) ? strlen($jsonData) : 0,
+           'Content-Length: '. $contentLength,
            'Accept: application/json',
            'Authorization: ' . $apiKey,
            'X-EPay-System: ' . Mage::helper('bambora')->getCmsInfo()
        );
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST,$postOrGet);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $jsonData);
-        curl_setopt($curl, CURLOPT_URL, $serviceUrl);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_FAILONERROR, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        $curl = new Varien_Http_Adapter_Curl();
+        $curl->setConfig(array(
+            'verifypeer' => false,
+            'header' => false));
+        $curl->write($method, $serviceUrl, '1.1', $headers, $jsonData);
+        $result = $curl->read();
 
-        $result = curl_exec($curl);
+        $curl->close();
 
-        curl_close($curl);
         return $result;
     }
 
@@ -83,8 +81,7 @@ abstract class Bambora_Online_Model_Api_Checkout_Base
      */
     protected function _mapMeta($response)
     {
-        if(!isset($response))
-        {
+        if (!isset($response)) {
             return null;
         }
         /** @var Bambora_Online_Model_Api_Checkout_Response_Model_Message */
@@ -105,7 +102,5 @@ abstract class Bambora_Online_Model_Api_Checkout_Base
         /** @var Bambora_Online_Helper_Data $bamboraHelper */
         $bamboraHelper = Mage::helper('bambora');
         $bamboraHelper->logException($exception);
-
     }
-
 }

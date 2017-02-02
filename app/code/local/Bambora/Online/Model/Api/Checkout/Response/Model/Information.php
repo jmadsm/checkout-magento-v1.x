@@ -27,5 +27,4 @@ class Bambora_Online_Model_Api_Checkout_Response_Model_Information
      * @var Bambora_Online_Model_Api_Checkout_Response_Model_PrimaryAccountnumber[]
      */
     public $primaryAccountnumbers;
-
 }

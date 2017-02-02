@@ -44,6 +44,4 @@ class Bambora_Online_Helper_BamboraConstant
     const REFUND = 'refund';
     const VOID = 'void';
     const GET_TRANSACTION = 'gettransaction';
-
-
 }

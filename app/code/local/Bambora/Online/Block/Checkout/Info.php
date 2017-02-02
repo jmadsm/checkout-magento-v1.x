@@ -20,8 +20,7 @@ class Bambora_Online_Block_Checkout_Info extends Mage_Payment_Block_Info
      */
     protected function _prepareSpecificInformation($transport = null)
     {
-        if ($this->_paymentSpecificInformation !== null)
-        {
+        if ($this->_paymentSpecificInformation !== null) {
             return $this->_paymentSpecificInformation;
         }
         $transport = new Varien_Object();
@@ -29,8 +28,7 @@ class Bambora_Online_Block_Checkout_Info extends Mage_Payment_Block_Info
 
         $info = $this->getInfo();
         $order = $info->getOrder();
-        if(!isset($order))
-        {
+        if (!isset($order)) {
             return $transport;
         }
 
@@ -42,20 +40,17 @@ class Bambora_Online_Block_Checkout_Info extends Mage_Payment_Block_Info
         /** @var Bambora_Online_Helper_Data */
         $bamboraHelper = Mage::helper('bambora');
 
-        if(!empty($transactionId))
-        {
+        if (!empty($transactionId)) {
             $key = $bamboraHelper->_s("Transaction ID");
             $transport->addData(array($key => $transactionId));
         }
 
-        if(!empty($paymentType))
-        {
+        if (!empty($paymentType)) {
             $key = $bamboraHelper->_s("Card type");
             $transport->addData(array($key => $paymentType));
         }
 
-        if(!empty($truncatedCardNumber))
-        {
+        if (!empty($truncatedCardNumber)) {
             $key = $bamboraHelper->_s("Card number");
             $transport->addData(array($key => $truncatedCardNumber));
         }

@@ -19,5 +19,4 @@ class Bambora_Online_Model_Api_Checkout_Response_Base
      * @var Bambora_Online_Model_Api_Checkout_Response_Model_Meta
      */
     public $meta;
-
 }

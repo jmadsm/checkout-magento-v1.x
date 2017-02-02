@@ -1,5 +1,5 @@
 <_>
-   <form_key>tv3hbWm5wJW1JzbI</form_key>
+   <form_key>Wrp0lWTNjVIn7dWo</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,14 +14,15 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.1.2</version>
+   <version>1.1.3</version>
    <stability>stable</stability>
-   <notes>Adds check for order beeing null in canVoid
-Update of settings
-Removed encryption from md5key
-Code refactoring
+   <notes>Fixed sprintf error in massaction
+Removed $_GET usage
+Code refactored to comply with Magento code standard
 
-You must re-enter your md5 key in the module configuration after updating to this version</notes>
+
+
+</notes>
    <authors>
       <name>
          <name>Bambora</name>
@@ -50,7 +51,7 @@ You must re-enter your md5 key in the module configuration after updating to thi
             <max/>
          </max>
          <files>
-            <files>                                                           </files>
+            <files>                                                               </files>
          </files>
       </package>
       <extension>
@@ -132,8 +133,4 @@ You must re-enter your md5 key in the module configuration after updating to thi
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>

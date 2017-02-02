@@ -26,7 +26,7 @@ class Bambora_Online_Block_Checkout_Form extends Mage_Payment_Block_Form
 
     /**
      * Get the html for the payment method
-     * 
+     *
      * @return string
      */
     public function getPaymentHtml()
@@ -39,22 +39,19 @@ class Bambora_Online_Block_Checkout_Form extends Mage_Payment_Block_Form
         $paymentMethod =  Mage::getModel('bamboracheckout/payment');
 
         $res = "";
-        if(intval($paymentMethod->getConfigData(BamboarConstant::ONLY_SHOW_PAYMENT_LOGOS)) === 0)
-        {
+        if (intval($paymentMethod->getConfigData(BamboarConstant::ONLY_SHOW_PAYMENT_LOGOS)) === 0) {
             $res = '<li>'. $bamboraHelper->_s("You have chosen to pay for the order online. Once you've completed your order, you will be transferred to the Bambora Checkout. Here you need to process your payment. Once payment is completed, you will automatically be returned to our shop.") .'</li>';
         }
         $paymentCards = $paymentMethod->getPaymentCardIds();
-        if(!empty($paymentCards))
-        {
+        if (!empty($paymentCards)) {
             $res .= '<li>';
-            foreach($paymentCards as $paymentcard)
-            {
+            foreach ($paymentCards as $paymentcard) {
                 $res .= '<img class="bambora_form_paymentcard" src="https://d3r1pwhfz7unl9.cloudfront.net/paymentlogos/'.$paymentcard.'.png" />';
             }
             $res .= '</li>';
         }
         $res .= '</ul>';
 
-        return html_entity_decode($res);
+        return $res;
     }
 }

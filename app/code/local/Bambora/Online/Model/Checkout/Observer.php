@@ -22,8 +22,7 @@ class Bambora_Online_Model_Checkout_Observer
         /** @var Bambora_Online_Helper_Data */
         $bamboraHelper = Mage::helper('bambora');
         $block = $event->getBlock();
-        if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_order')
-        {
+        if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_order') {
             $block->addItem('bambora_capture', array(
              'label'=> $bamboraHelper->_s("Bambora - Mass Invoice and Capture"),
              'url'  => $block->getUrl('adminhtml/massaction/bamboramasscapture'),
@@ -43,8 +42,7 @@ class Bambora_Online_Model_Checkout_Observer
         /** @var Bambora_Online_Helper_Data */
         $bamboraHelper = Mage::helper('bambora');
         $block = $event->getBlock();
-        if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_invoice')
-        {
+        if ($block instanceof Mage_Adminhtml_Block_Widget_Grid_Massaction && $block->getRequest()->getControllerName() == 'sales_invoice') {
             $block->addItem('bambora_invoice', array(
              'label'=> $bamboraHelper->_s("Bambora - Mass Creditmemo and Refund"),
              'url'  => $block->getUrl('adminhtml/massaction/bamboramassrefund'),
@@ -64,8 +62,7 @@ class Bambora_Online_Model_Checkout_Observer
         $payment = Mage::getModel('bamboracheckout/payment');
         $storeId = $payment->getStore()->getId();
 
-        if(intval($payment->getConfigData(BamboraConstant::USE_AUTO_CANCEL, $storeId)) === 1)
-        {
+        if (intval($payment->getConfigData(BamboraConstant::USE_AUTO_CANCEL, $storeId)) === 1) {
             $date = Mage::getSingleton('core/date');
 
             $orderCollection = Mage::getResourceModel('sales/order_collection');
@@ -79,22 +76,18 @@ class Bambora_Online_Model_Checkout_Observer
                 ->setOrder('created_at', 'ASC')
                 ->getSelect();
 
-            foreach ($orderCollection->getItems() as $order)
-            {
+            foreach ($orderCollection->getItems() as $order) {
                 /** @var Mage_Sales_Model_Order */
                 $orderModel = Mage::getModel('sales/order');
                 $orderModel->load($order["entity_id"]);
 
-                try
-                {
-                    if(!$orderModel->canCancel())
-                    {
+                try {
+                    if (!$orderModel->canCancel()) {
                         continue;
                     }
 
                     $pspReference = $order->getPayment()->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
-                    if(!empty($pspReference))
-                    {
+                    if (!empty($pspReference)) {
                         continue;
                     }
 
@@ -102,9 +95,7 @@ class Bambora_Online_Model_Checkout_Observer
                     $message = $bamboraHelper->_s("Order was auto canceled because no payment has been made.");
                     $orderModel->addStatusToHistory($orderModel->getStatus(), $message);
                     $orderModel->save();
-                }
-                catch(Exception $e)
-                {
+                } catch (Exception $e) {
                     echo "Could not be canceled: " . $e->getMessage();
                     Mage::logException($e);
                 }

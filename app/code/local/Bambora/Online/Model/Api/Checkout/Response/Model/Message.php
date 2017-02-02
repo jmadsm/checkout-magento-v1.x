@@ -23,5 +23,4 @@ class Bambora_Online_Model_Api_Checkout_Response_Model_Message
      * @var string
      */
     public $merchant;
-
 }

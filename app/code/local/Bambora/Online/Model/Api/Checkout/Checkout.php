@@ -27,11 +27,10 @@ class Bambora_Online_Model_Api_Checkout_Checkout extends Bambora_Online_Model_Ap
      */
     public function setCheckout($setcheckoutrequest, $apiKey)
     {
-        try
-        {
+        try {
             $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_CHECKOUT) . '/checkout';
             $jsonData = json_encode($setcheckoutrequest);
-            $checkoutResponseJson = $this->_callRestService($serviceUrl, $jsonData, "POST", $apiKey);
+            $checkoutResponseJson = $this->_callRestService($serviceUrl, $jsonData, Zend_Http_Client::POST, $apiKey);
             $checkoutResponseArray = json_decode($checkoutResponseJson, true);
 
             /** @var Bambora_Online_Model_Api_Checkout_Response_Checkout */
@@ -41,9 +40,7 @@ class Bambora_Online_Model_Api_Checkout_Checkout extends Bambora_Online_Model_Ap
             $checkoutResponse->url = $checkoutResponseArray['url'];
 
             return $checkoutResponse;
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->logException($ex);
             return null;
         }
