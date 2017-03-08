@@ -2,7 +2,7 @@
 <config>
   <modules>
     <Bambora_Online>
-      <version>1.1.3</version>
+      <version>1.1.4</version>
     </Bambora_Online>
   </modules>
   <global>
@@ -96,10 +96,10 @@
     <events>
       <sales_order_place_after>
         <observers>
-          <epay_order_placed_after_actopm>
+          <bambora_checkout_order_placed_after_action>
             <class>bambora/checkout_observer</class>
             <method>orderPlacedAfter</method>
-          </epay_order_placed_after_actopm>
+          </bambora_checkout_order_placed_after_action>
         </observers>
       </sales_order_place_after>
     </events>
