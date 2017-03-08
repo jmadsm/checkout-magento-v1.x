@@ -1,5 +1,5 @@
 <_>
-   <form_key>hee8tdZ3BBFf6okY</form_key>
+   <form_key>1HPmkgEOmZLsxiCa</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -49,7 +49,7 @@ Adds better error handling and notification on callback errors
             <max/>
          </max>
          <files>
-            <files>                                                                   </files>
+            <files>                                                                    </files>
          </files>
       </package>
       <extension>
@@ -131,4 +131,8 @@ Adds better error handling and notification on callback errors
          <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>

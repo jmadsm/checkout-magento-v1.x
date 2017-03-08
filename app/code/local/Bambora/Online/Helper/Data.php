@@ -33,7 +33,8 @@ class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
         } elseif (!$response->meta->result) {
             // Error with description
             $message = $isBackoffice ? $response->meta->message->merchant : $response->meta->message->enduser;
-            $this->log($id, $response->meta->message->merchant, Zend_Log::ERR);
+            $logMessage = isset($response->meta->message->merchant) ? $response->meta->message->merchant : $response->meta->message->enduser;
+            $this->log($id, $logMessage, Zend_Log::ERR);
             return false;
         }
         return true;
