@@ -63,3 +63,5 @@
 "The Invoice could not be captured online","Fakturaen kunne ikke hæves online"
 "The Order is placed using Bambora Checkout and is now awaiting payment.","Ordren er nu oprettet med Bambora Checkout og afventer betalingen"
 "Could not use instant invoice.","Kunne ikke udf&oslash;re instant invoice"
+"shipping","forsendelse"
+"discount","rabat"

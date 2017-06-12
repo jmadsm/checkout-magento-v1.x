@@ -63,3 +63,5 @@
 "The Invoice could not be captured online","The Invoice could not be captured online"
 "The Order is placed using Bambora Checkout and is now awaiting payment.","The Order is placed using Bambora Checkout and is now awaiting payment."
 "Could not use instant invoice.","Could not use instant invoice."
+"shipping","shipping"
+"discount","discount"
