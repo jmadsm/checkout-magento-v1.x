@@ -1,5 +1,5 @@
 <_>
-   <form_key>1HPmkgEOmZLsxiCa</form_key>
+   <form_key>K4KlHkiFVMPFbjfR</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,12 +14,9 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.1.4</version>
+   <version>1.1.5</version>
    <stability>stable</stability>
-   <notes>Adds check for payment method in observers
-Changed redirect logic
-Adds better error handling and notification on callback errors
-
+   <notes>Fix for discount calculation when using invoice lines - now discount is in a separate line on the invoice
 </notes>
    <authors>
       <name>
@@ -49,7 +46,7 @@ Adds better error handling and notification on callback errors
             <max/>
          </max>
          <files>
-            <files>                                                                    </files>
+            <files>                                                                     </files>
          </files>
       </package>
       <extension>
@@ -131,8 +128,4 @@ Adds better error handling and notification on callback errors
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>
