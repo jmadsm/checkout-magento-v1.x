@@ -142,7 +142,7 @@ class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $bamboraVersion = (string) Mage::getConfig()->getNode()->modules->Mage_Epay->version;
         $magentoVersion = Mage::getVersion();
-        $result = 'Magento/' . $magentoVersion . ' Module/' . $bamboraVersion;
+        $result = 'Magento/' . $magentoVersion . ' Module/' . $bamboraVersion . ' PHP/'. phpversion();
 
         return $result;
     }
