@@ -2,7 +2,7 @@
 <config>
   <modules>
     <Bambora_Online>
-      <version>1.1.5</version>
+      <version>1.2.0</version>
     </Bambora_Online>
   </modules>
   <global>
@@ -50,8 +50,10 @@
         <instantcapture>0</instantcapture>
         <windowstate>1</windowstate>
         <immediateredirecttoaccept>0</immediateredirecttoaccept>
-        <addsurchargetopayment>0</addsurchargetopayment>
+        <enablesurcharge>0</enablesurcharge>
+        <surchargemode>surcharge_order_line</surchargemode>
         <sendmailorderconfirmation>1</sendmailorderconfirmation>
+        <roundingmode>round_default</roundingmode>
         <onlyshowpaymentlogos>0</onlyshowpaymentlogos>
         <remoteinterface>1</remoteinterface>
         <instantinvoice>0</instantinvoice>

@@ -16,6 +16,8 @@ class Bambora_Online_Helper_BamboraConstant
 {
     //Surcharge
     const BAMBORA_SURCHARGE = 'surcharge_fee';
+    const SURCHARGE_SHIPMENT = "surcharge_shipment";
+    const SURCHARGE_ORDER_LINE = "surcharge_order_line";
 
     //Config constants
     const ORDER_STATUS = 'order_status';
@@ -27,20 +29,28 @@ class Bambora_Online_Helper_BamboraConstant
     const SECRET_TOKEN = 'secrettoken';
     const MD5_KEY = 'md5key';
     const PAYMENT_WINDOW_ID = 'paymentwindowid';
-    const INSTANT_CAPTURE = 'instantcapture'; //DONT CHANTE THIS
+    const INSTANT_CAPTURE = 'instantcapture'; //DO NOT CHANGE THIS
     const INSTANT_INVOICE = 'instantinvoice';
     const INSTANT_INVOICE_MAIL = 'instantinvoicemail';
     const IMMEDIATEREDI_REDIRECT_TO_ACCEPT = 'immediateredirecttoaccept';
-    const ADD_SURCHARGE_TO_PAYMENT = 'addsurchargetopayment';
+    const ENABLE_SURCHARGE = 'enablesurcharge';
+    const SURCHARGE_MODE = 'surchargemode';
     const SEND_MAIL_ORDER_CONFIRMATION = 'sendmailorderconfirmation';
     const WINDOW_STATE = 'windowstate';
     const REMOTE_INTERFACE = 'remoteinterface';
     const ONLY_SHOW_PAYMENT_LOGOS = 'onlyshowpaymentlogos';
     const USE_AUTO_CANCEL = 'useautocancel';
+    const ROUNDING_MODE = 'roundingmode';
+
 
     //Actions
     const CAPTURE = 'capture';
     const REFUND = 'refund';
     const VOID = 'void';
     const GET_TRANSACTION = 'gettransaction';
+
+    //Rounding
+    const ROUND_UP = "round_up";
+    const ROUND_DOWN = "round_down";
+    const ROUND_DEFAULT = "round_default";
 }

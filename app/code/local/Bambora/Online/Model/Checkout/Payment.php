@@ -99,8 +99,8 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $amount = $this->getQuote()->getBaseGrandTotal();
         }
 
-        $minorUnits = $this->bamboraHelper->getCurrencyMinorunits($currency);
-        $amountMinorunits = $this->bamboraHelper->convertPriceToMinorUnits($amount, $minorUnits);
+        $minorunits = $this->bamboraHelper->getCurrencyMinorunits($currency);
+        $amountMinorunits = $this->bamboraHelper->convertPriceToMinorunits($amount, $minorunits, $this->getConfigData(BamboraConstant::ROUNDING_MODE));
 
         /** @var Bambora_Online_Model_Api_Checkout_Merchant */
         $merchantApi = Mage::getModel(CheckoutApi::API_MERCHANT);
@@ -166,8 +166,10 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         }
 
         $storeId = $order->getStoreId();
-        $minorUnits = $this->bamboraHelper->getCurrencyMinorUnits($order->getBaseCurrencyCode());
-        $totalAmountMinorUnits = $this->bamboraHelper->convertPriceToMinorUnits($order->getBaseTotalDue(), $minorUnits);
+        $minorunits = $this->bamboraHelper->getCurrencyMinorUnits($order->getBaseCurrencyCode());
+        $roundingMode =  $this->getConfigData(BamboraConstant::ROUNDING_MODE);
+
+        $totalAmountMinorUnits = $this->bamboraHelper->convertPriceToMinorunits($order->getBaseTotalDue(), $minorunits, $roundingMode);
 
         /** @var Bambora_Online_Model_Api_Checkout_Request_Checkout */
         $checkoutRequest = Mage::getModel(CheckoutApiModel::REQUEST_CHECKOUT);
@@ -184,7 +186,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         $bamboraOrder->currency = $order->getBaseCurrencyCode();
         $bamboraOrder->ordernumber = $order->getIncrementId();
         $bamboraOrder->total = $totalAmountMinorUnits;
-        $bamboraOrder->vatamount = $this->bamboraHelper->convertPriceToMinorUnits($order->getBaseTaxAmount(), $minorUnits);
+        $bamboraOrder->vatamount = $this->bamboraHelper->convertPriceToMinorunits($order->getBaseTaxAmount(), $minorunits, $roundingMode);
 
         /** @var Bambora_Online_Model_Api_Checkout_Request_Model_Url */
         $bamboraUrl = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_URL);
@@ -236,7 +238,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         /** @var Mage_Sales_Model_Order_Item[] */
         $items = $order->getAllVisibleItems();
         $lineNumber = 1;
-        foreach($items as $item) {
+        foreach ($items as $item) {
             /** @var Bambora_Online_Model_Api_Checkout_Request_Model_Line */
             $invoiceItem = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
             $invoiceItem->description = $item->getName();
@@ -244,9 +246,9 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $invoiceItem->linenumber = $lineNumber;
             $invoiceItem->quantity = floatval($item->getQtyOrdered());
             $invoiceItem->text = $item->getName();
-            $invoiceItem->totalprice = $this->bamboraHelper->convertPriceToMinorUnits($item->getBasePrice(), $minorUnits);
-            $invoiceItem->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits($item->getBasePriceInclTax(), $minorUnits);
-            $invoiceItem->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorUnits($item->getBaseTaxAmount(), $minorUnits);
+            $invoiceItem->totalprice = $this->bamboraHelper->convertPriceToMinorunits($item->getBasePrice(), $minorunits, $roundingMode);
+            $invoiceItem->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($item->getBasePriceInclTax(), $minorunits, $roundingMode);
+            $invoiceItem->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorunits($item->getBaseTaxAmount(), $minorunits, $roundingMode);
             $invoiceItem->unit = $this->bamboraHelper->_s("pcs.");
             $invoiceItem->vat = floatval($item->getTaxPercent());
 
@@ -254,60 +256,51 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $lineNumber++;
         }
         // Add Shipment
-        /** @var Bambora_Online_Model_Api_Checkout_Request_Model_Line */
-        $invoiceShipping = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
-        $invoiceShipping->description = $order->getShippingDescription();
-        $invoiceShipping->id = $this->bamboraHelper->_s("shipping");
-        $invoiceShipping->linenumber = $lineNumber;
-        $invoiceShipping->quantity = 1;
-        $invoiceShipping->text = $order->getShippingDescription();
-        $invoiceShipping->totalprice = $this->bamboraHelper->convertPriceToMinorUnits($order->getBaseShippingAmount(), $minorUnits);
-        $invoiceShipping->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits($order->getShippingInclTax(), $minorUnits);
-        $invoiceShipping->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorUnits($order->getShippingTaxAmount(), $minorUnits);
-        $invoiceShipping->unit = $this->bamboraHelper->_s("pcs.");
+        $baseShippingAmount = $order->getBaseShippingAmount();
+        if ($baseShippingAmount != 0) {
+            $shippingDescription = $order->getShippingDescription();
+            /** @var Bambora_Online_Model_Api_Checkout_Request_Model_Line */
+            $invoiceShipping = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
+            $invoiceShipping->description = isset($shippingDescription) ? $shippingDescription : $this->bamboraHelper->_s("shipping");
+            $invoiceShipping->id = $this->bamboraHelper->_s("shipping");
+            $invoiceShipping->linenumber = $lineNumber;
+            $invoiceShipping->quantity = 1;
+            $invoiceShipping->text = isset($shippingDescription) ? $shippingDescription : $this->bamboraHelper->_s("shipping");
+            $invoiceShipping->totalprice = $this->bamboraHelper->convertPriceToMinorunits($baseShippingAmount, $minorunits, $roundingMode);
+            $invoiceShipping->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($order->getShippingInclTax(), $minorunits, $roundingMode);
+            $invoiceShipping->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorunits($order->getShippingTaxAmount(), $minorunits, $roundingMode);
+            $invoiceShipping->unit = $this->bamboraHelper->_s("pcs.");
 
-        $shippingTaxClass = Mage::getStoreConfig('tax/classes/shipping_tax_class');
-        $shippingTaxPercent = $this->getTaxRate($order, $shippingTaxClass);
-        $invoiceShipping->vat =  $shippingTaxPercent;
+            $shippingTaxClass = Mage::getStoreConfig('tax/classes/shipping_tax_class');
+            $shippingTaxPercent = $this->bamboraHelper->getTaxRate($order, $shippingTaxClass);
+            $invoiceShipping->vat =  $shippingTaxPercent;
 
-        $bamboraOrderLines[] = $invoiceShipping;
-        $lineNumber++;
+            $bamboraOrderLines[] = $invoiceShipping;
+            $lineNumber++;
+        }
 
         // Add Discount
-        $invoiceDiscount = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
-        $invoiceDiscount->description = $order->getDiscountDescription();
-        $invoiceDiscount->id = $this->bamboraHelper->_s("discount");
-        $invoiceDiscount->linenumber = $lineNumber;
-        $invoiceDiscount->quantity = 1;
-        $invoiceDiscount->text = $order->getDiscountDescription();
-        $invoiceDiscount->totalprice = $this->bamboraHelper->convertPriceToMinorUnits($order->getBaseDiscountAmount(), $minorUnits);
-        $invoiceDiscount->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits($order->getBaseDiscountAmount(), $minorUnits);
-        $invoiceDiscount->totalpricevatamount = 0;
-        $invoiceDiscount->unit = $this->bamboraHelper->_s("pcs.");
-        $invoiceDiscount->vat =  0;
+        $baseDiscountAmount = $order->getBaseDiscountAmount();
+        if ($baseDiscountAmount != 0) {
+            $discountDescription = $order->getDiscountDescription();
+            $invoiceDiscount = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
+            $invoiceDiscount->description = isset($discountDescription) ? $discountDescription : $this->bamboraHelper->_s("discount");
+            $invoiceDiscount->id = $this->bamboraHelper->_s("discount");
+            $invoiceDiscount->linenumber = $lineNumber;
+            $invoiceDiscount->quantity = 1;
+            $invoiceDiscount->text = $order->getDiscountDescription();
+            $invoiceDiscount->totalprice = $this->bamboraHelper->convertPriceToMinorunits($baseDiscountAmount, $minorunits, $roundingMode);
+            $invoiceDiscount->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($baseDiscountAmount, $minorunits, $roundingMode);
+            $invoiceDiscount->totalpricevatamount = 0;
+            $invoiceDiscount->unit = $this->bamboraHelper->_s("pcs.");
+            $invoiceDiscount->vat =  0;
 
-        $bamboraOrderLines[] = $invoiceDiscount;
-
+            $bamboraOrderLines[] = $invoiceDiscount;
+        }
         $bamboraOrder->lines = $bamboraOrderLines;
         $checkoutRequest->order = $bamboraOrder;
 
         return $checkoutRequest;
-    }
-
-    public function getTaxRate($order, $taxClass)
-    {
-        // Load the customer so we can retrevice the correct tax class id
-        $customer = Mage::getModel('customer/customer')
-            ->load($order->getCustomerId());
-        $calculation = Mage::getSingleton('tax/calculation');
-        $request = $calculation->getRateRequest(
-            $order->getShippingAddress(),
-            $order->getBillingAddress(),
-            $customer->getTaxClassId(),
-            $order->getStore()
-        );
-
-        return $calculation->getRate($request->setProductClassId($taxClass));
     }
 
     /**{@inheritDoc}*/
@@ -337,7 +330,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
 
             /** @var Bambora_Online_Model_Api_Checkout_Request_Capture $captureRequest */
             $captureRequest = Mage::getModel(CheckoutApiModel::REQUEST_CAPTURE);
-            $captureRequest->amount = $this->bamboraHelper->convertPriceToMinorUnits($amount, $minorunits);
+            $captureRequest->amount = $this->bamboraHelper->convertPriceToMinorunits($amount, $minorunits, $this->getConfigData(BamboraConstant::ROUNDING_MODE));
             $captureRequest->currency = $currency;
 
             //Only add invoice lines if it is a full capture
@@ -390,7 +383,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
 
             /** @var Bambora_Online_Model_Api_Checkout_Request_Credit */
             $creditRequest = Mage::getModel(CheckoutApiModel::REQUEST_CREDIT);
-            $creditRequest->amount = $this->bamboraHelper->convertPriceToMinorUnits($amount, $minorunits);
+            $creditRequest->amount = $this->bamboraHelper->convertPriceToMinorunits($amount, $minorunits, $this->getConfigData(BamboraConstant::ROUNDING_MODE));
             $creditRequest->currency = $currency;
 
             $creditMemo = $payment->getCreditmemo();
@@ -543,7 +536,8 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $lines[] = $this->createInvoiceLineFromInvoice($item, $order);
         }
 
-        $minorUnits = $this->bamboraHelper->getCurrencyMinorunits($invoice->getBaseCurrencyCode());
+        $minorunits = $this->bamboraHelper->getCurrencyMinorunits($invoice->getBaseCurrencyCode());
+        $roundingMode = $this->getConfigData(BamboraConstant::ROUNDING_MODE);
 
         // Add Shipment
         /** @var Bambora_Online_Model_Api_Checkout_Request_Model_Line */
@@ -553,13 +547,13 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         $invoiceShipping->linenumber = count($lines) + 1;
         $invoiceShipping->quantity = 1;
         $invoiceShipping->text = $order->getShippingDescription();
-        $invoiceShipping->totalprice = $this->bamboraHelper->convertPriceToMinorUnits($invoice->getBaseShippingAmount(), $minorUnits);
-        $invoiceShipping->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits($invoice->getShippingInclTax(), $minorUnits);
-        $invoiceShipping->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorUnits($invoice->getShippingTaxAmount(), $minorUnits);
+        $invoiceShipping->totalprice = $this->bamboraHelper->convertPriceToMinorunits($invoice->getBaseShippingAmount(), $minorunits, $roundingMode);
+        $invoiceShipping->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($invoice->getShippingInclTax(), $minorunits, $roundingMode);
+        $invoiceShipping->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorunits($invoice->getShippingTaxAmount(), $minorunits, $roundingMode);
         $invoiceShipping->unit = $this->bamboraHelper->_s("pcs.");
 
         $shippingTaxClass = Mage::getStoreConfig('tax/classes/shipping_tax_class');
-        $shippingTaxPercent = $this->getTaxRate($invoice, $shippingTaxClass);
+        $shippingTaxPercent = $this->bamboraHelper->getTaxRate($invoice, $shippingTaxClass);
         $invoiceShipping->vat =  $shippingTaxPercent;
 
         $lines[] = $invoiceShipping;
@@ -572,8 +566,8 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         $invoiceDiscount->linenumber = count($lines) + 1;
         $invoiceDiscount->quantity = 1;
         $invoiceDiscount->text = $invoice->getDiscountDescription();
-        $invoiceDiscount->totalprice = $this->bamboraHelper->convertPriceToMinorUnits($invoice->getBaseDiscountAmount(), $minorUnits);
-        $invoiceDiscount->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits($invoice->getBaseDiscountAmount(), $minorUnits);
+        $invoiceDiscount->totalprice = $this->bamboraHelper->convertPriceToMinorunits($invoice->getBaseDiscountAmount(), $minorunits, $roundingMode);
+        $invoiceDiscount->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($invoice->getBaseDiscountAmount(), $minorunits, $roundingMode);
         $invoiceDiscount->totalpricevatamount = 0;
         $invoiceDiscount->unit = $this->bamboraHelper->_s("pcs.");
         $invoiceDiscount->vat =  0;
@@ -609,7 +603,8 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             }
             $lines[] = $this->createInvoiceLineFromInvoice($item, $order);
         }
-        $minorUnits = $this->bamboraHelper->getCurrencyMinorunits($creditMemo->getBaseCurrencyCode());
+        $minorunits = $this->bamboraHelper->getCurrencyMinorunits($creditMemo->getBaseCurrencyCode());
+        $roundingMode = $this->getConfigData(BamboraConstant::ROUNDING_MODE);
 
         // Add Shipment
         /** @var Bambora_Online_Model_Api_Checkout_Request_Model_Line */
@@ -619,13 +614,13 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         $invoiceShipping->linenumber = count($lines) + 1;
         $invoiceShipping->quantity = 1;
         $invoiceShipping->text = $creditMemo->getShippingDescription();
-        $invoiceShipping->totalprice = $this->bamboraHelper->convertPriceToMinorUnits($creditMemo->getBaseShippingAmount(), $minorUnits);
-        $invoiceShipping->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits($creditMemo->getShippingInclTax(), $minorUnits);
-        $invoiceShipping->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorUnits($creditMemo->getShippingTaxAmount(), $minorUnits);
+        $invoiceShipping->totalprice = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getBaseShippingAmount(), $minorunits, $roundingMode);
+        $invoiceShipping->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getShippingInclTax(), $minorunits, $roundingMode);
+        $invoiceShipping->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getShippingTaxAmount(), $minorunits, $roundingMode);
         $invoiceShipping->unit = $this->bamboraHelper->_s("pcs.");
 
         $shippingTaxClass = Mage::getStoreConfig('tax/classes/shipping_tax_class');
-        $shippingTaxPercent = $this->getTaxRate($creditMemo, $shippingTaxClass);
+        $shippingTaxPercent = $this->bamboraHelper->getTaxRate($creditMemo, $shippingTaxClass);
         $invoiceShipping->vat =  $shippingTaxPercent;
 
         $lines[] = $invoiceShipping;
@@ -638,8 +633,8 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         $invoiceDiscount->linenumber = count($lines) + 1;
         $invoiceDiscount->quantity = 1;
         $invoiceDiscount->text = $creditMemo->getDiscountDescription();
-        $invoiceDiscount->totalprice = $this->bamboraHelper->convertPriceToMinorUnits($creditMemo->getBaseDiscountAmount(), $minorUnits);
-        $invoiceDiscount->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits($creditMemo->getBaseDiscountAmount(), $minorUnits);
+        $invoiceDiscount->totalprice = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getBaseDiscountAmount(), $minorunits, $roundingMode);
+        $invoiceDiscount->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getBaseDiscountAmount(), $minorunits, $roundingMode);
         $invoiceDiscount->totalpricevatamount = 0;
         $invoiceDiscount->unit = $this->bamboraHelper->_s("pcs.");
         $invoiceDiscount->vat =  0;
@@ -652,15 +647,15 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         }
 
         //Adjustment refund
-        if($creditMemo->getBaseAdjustment() > 0) {
+        if ($creditMemo->getBaseAdjustment() > 0) {
             $invoiceAdjustment = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
             $invoiceAdjustment->description = $this->bamboraHelper->_s("Adjustment refund");
             $invoiceAdjustment->id = $this->bamboraHelper->_s("adjustment_refund");
             $invoiceAdjustment->linenumber = count($lines) + 1;
             $invoiceAdjustment->quantity = 1;
             $invoiceAdjustment->text = $this->bamboraHelper->_s("Adjustment refund");
-            $invoiceAdjustment->totalprice = $this->bamboraHelper->convertPriceToMinorUnits($creditMemo->getBaseAdjustment(), $minorUnits);
-            $invoiceAdjustment->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits($creditMemo->getBaseAdjustment(), $minorUnits);
+            $invoiceAdjustment->totalprice = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getBaseAdjustment(), $minorunits, $roundingMode);
+            $invoiceAdjustment->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getBaseAdjustment(), $minorunits, $roundingMode);
             $invoiceAdjustment->totalpricevatamount = 0;
             $invoiceAdjustment->unit = $this->bamboraHelper->_s("pcs.");
             $invoiceAdjustment->vat =  0;
@@ -698,7 +693,8 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
      */
     public function createInvoiceLineFromInvoice($item, $order)
     {
-        $minorUnits = $this->bamboraHelper->getCurrencyMinorunits($order->getBaseCurrencyCode());
+        $minorunits = $this->bamboraHelper->getCurrencyMinorunits($order->getBaseCurrencyCode());
+        $roundingMode = $this->getConfigData(BamboraConstant::ROUNDING_MODE);
         /** @var Bambora_Online_Model_Api_Checkout_Request_Model_Line */
         $invoiceLine = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
         $invoiceLine->description = $item->getName();
@@ -706,9 +702,9 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
         $invoiceLine->linenumber = array_search($item->getOrderItemId(), array_keys($order->getAllItems())) + 1;
         $invoiceLine->quantity = floatval($item->getQtyOrdered());
         $invoiceLine->text = $item->getName();
-        $invoiceLine->totalprice = $this->bamboraHelper->convertPriceToMinorUnits($item->getBasePrice(), $minorUnits);
-        $invoiceLine->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorUnits($item->getBasePriceInclTax(), $minorUnits);
-        $invoiceLine->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorUnits($item->getBaseTaxAmount(), $minorUnits);
+        $invoiceLine->totalprice = $this->bamboraHelper->convertPriceToMinorunits($item->getBasePrice(), $minorunits, $roundingMode);
+        $invoiceLine->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($item->getBasePriceInclTax(), $minorunits, $roundingMode);
+        $invoiceLine->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorunits($item->getBaseTaxAmount(), $minorunits, $roundingMode);
         $invoiceLine->unit = $this->bamboraHelper->_s("pcs.");
         $invoiceLine->vat = floatval($item->getTaxPercent());
 

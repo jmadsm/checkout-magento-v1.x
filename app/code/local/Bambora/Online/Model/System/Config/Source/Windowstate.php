@@ -17,8 +17,8 @@ class Bambora_Online_Model_System_Config_Source_Windowstate
     public function toOptionArray()
     {
         return array(
-            array('value'=>2, 'label'=>Mage::helper('adminhtml')->__('Overlay')),
-            array('value'=>1, 'label'=>Mage::helper('adminhtml')->__('Full Screen')),
+            array('value'=>2, 'label'=>"Overlay"),
+            array('value'=>1, 'label'=>"Full Screen")
         );
     }
 }

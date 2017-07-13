@@ -99,7 +99,8 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Admi
         $res .= '<td>' . $transaction->id . '</td></tr>';
 
         $res .= '<tr><td>' . $this->bamboraHelper->_s('Amount') . ':</td>';
-        $res .= '<td>' . $transaction->currency->code . "&nbsp;" . $this->bamboraHelper->convertPriceFromMinorUnits($transaction->total->authorized, $transaction->currency->minorunits) . '</td></tr>';
+        $amount = $this->bamboraHelper->convertPriceFromMinorunits($transaction->total->authorized, $transaction->currency->minorunits);
+        $res .= '<td>' . Mage::helper('core')->currency($amount, true, false) . '</td></tr>';
 
         $res .= '<tr><td>' . $this->bamboraHelper->_s('Transaction date') . ':</td>';
         $res .= '<td>' . $this->formatDate($transaction->createdDate, Mage_Core_Model_Locale::FORMAT_TYPE_SHORT, true) . '</td></tr>';
@@ -111,13 +112,16 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Admi
         $res .= '<td>' . $transaction->information->primaryAccountnumbers[0]->number . '</td></tr>';
 
         $res .= '<tr><td>' . $this->bamboraHelper->_s('Surcharge fee') . ':</td>';
-        $res .= '<td>' . $transaction->currency->code . "&nbsp;" .$this->bamboraHelper->convertPriceFromMinorUnits($transaction->total->feeamount, $transaction->currency->minorunits) . '</td></tr>';
+        $surchargeFee = $this->bamboraHelper->convertPriceFromMinorunits($transaction->total->feeamount, $transaction->currency->minorunits);
+        $res .= '<td>' . Mage::helper('core')->currency($surchargeFee, true, false) . '</td></tr>';
 
         $res .= '<tr><td>' . $this->bamboraHelper->_s('Captured') . ':</td>';
-        $res .= '<td>' . $transaction->currency->code . "&nbsp;" .$this->bamboraHelper->convertPriceFromMinorUnits($transaction->total->captured, $transaction->currency->minorunits) . '</td></tr>';
+        $capturedAmount = $this->bamboraHelper->convertPriceFromMinorunits($transaction->total->captured, $transaction->currency->minorunits);
+        $res .= '<td>' . Mage::helper('core')->currency($capturedAmount, true, false) . '</td></tr>';
 
         $res .= '<tr><td>' . $this->bamboraHelper->_s('Refunded') . ':</td>';
-        $res .= '<td>' . $transaction->currency->code . "&nbsp;" . $this->bamboraHelper->convertPriceFromMinorUnits($transaction->total->credited, $transaction->currency->minorunits) . '</td></tr>';
+        $creditedAmount = $this->bamboraHelper->convertPriceFromMinorunits($transaction->total->credited, $transaction->currency->minorunits);
+        $res .= '<td>' . Mage::helper('core')->currency($creditedAmount, true, false) . '</td></tr>';
 
         $res .= '<tr><td>' . $this->bamboraHelper->_s('Acquirer') . ':</td>';
         $res .= '<td>' . $transaction->information->acquirers[0]->name . '</td></tr>';
@@ -196,7 +200,8 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Admi
             $res .= '<tr>';
             $res .= '<td>' . $this->formatDate($operation->createddate, Mage_Core_Model_Locale::FORMAT_TYPE_SHORT, true).'</td>' ;
             $res .= '<td>' . $operation->action  .'</td>';
-            $res .= '<td>' . $operation->currency->code . "&nbsp;" . $this->bamboraHelper->convertPriceFromMinorUnits($operation->amount, $operation->currency->minorunits) . '</td>';
+            $amount = $this->bamboraHelper->convertPriceFromMinorunits($operation->amount, $operation->currency->minorunits);
+            $res .= '<td>' . Mage::helper('core')->currency($amount, true, false)  . '</td>';
 
             if (is_array($operation->ecis) && count($operation->ecis)> 0) {
                 $res .= '<td>' . $operation->ecis[0]->value .'</td>';
@@ -227,12 +232,12 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Admi
      */
     public function getTabLabel()
     {
-        return 'Bambora';
+        return 'Bambora Online Checkout';
     }
 
     public function getTabTitle()
     {
-        return $this->bamboraHelper->_s('Bambora Payment Information');
+        return 'Bambora Online Checkout';
     }
 
     public function canShowTab()

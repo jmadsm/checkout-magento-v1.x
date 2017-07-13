@@ -4,7 +4,7 @@
     <payment>
       <groups>
         <bamboracheckout module="bambora">
-          <label>Bambora Checkout 1.1.5</label>
+          <label>Bambora Checkout 1.2.0</label>
           <comment><![CDATA[Detailed description of these settings are to be found <a href="http://dev.bambora.com/shopping-carts/guides/shopping-carts/magento" target="_blank">here</a>.<br><br>]]></comment>
           <frontend_type>text</frontend_type>
           <sort_order>1</sort_order>
@@ -108,8 +108,8 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </immediateredirecttoaccept>
-            <addsurchargetopayment>
-              <label><![CDATA[<b>Add Surcharge:</b>]]></label>
+            <enablesurcharge>
+              <label><![CDATA[<b>Enable Surcharge:</b>]]></label>
               <comment><![CDATA[Display surcharge amount on the order, invoice and creditmemo as an item]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
@@ -117,7 +117,17 @@
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
-            </addsurchargetopayment>
+            </enablesurcharge>
+            <surchargemode>
+              <label><![CDATA[<b>Surcharge mode</b>]]></label>
+              <comment><![CDATA[Select if the surcharge should be added as an order line or if it should be added to the shipping & handling fee]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>bambora/system_config_source_surchargemode</source_model>
+              <sort_order>12</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </surchargemode>
             <sendmailorderconfirmation>
               <label><![CDATA[<b>Send Email Order Confirmation:</b>]]></label>
               <comment><![CDATA[Send an email order confirmation to the customer when the payment is completed.]]></comment>
@@ -128,12 +138,22 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </sendmailorderconfirmation>
+            <roundingmode>
+              <label><![CDATA[<b>Rounding mode</b>]]></label>
+              <comment><![CDATA[Please select how you want the rounding of the amount sendt to the payment system]]></comment>
+              <frontend_type>select</frontend_type>
+              <source_model>bambora/system_config_source_roundingmode</source_model>
+              <sort_order>13</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </roundingmode>
             <onlyshowpaymentlogos>
               <label><![CDATA[<b>Only show payment logos at checkout</b>]]></label>
               <comment><![CDATA[Set to diable the title text and only display payment logos at checkout]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>13</sort_order>
+              <sort_order>14</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -143,7 +163,7 @@
               <comment><![CDATA[Enable this option in order to capture, credit, delete and display payments directly from the Magento backoffice]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>14</sort_order>
+              <sort_order>15</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -153,17 +173,17 @@
               <comment><![CDATA[Automatic create an invoice once the payment is completed]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>15</sort_order>
+              <sort_order>16</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </instantinvoice>
             <instantinvoicemail>
               <label><![CDATA[<b>Instant invoice mail:</b>]]></label>
-              <comment><![CDATA[If instant invoice then send invoice to customer.]]></comment>
+              <comment><![CDATA[Send an email to the customer when the instant invoice is created.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>16</sort_order>
+              <sort_order>17</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -173,7 +193,7 @@
               <comment><![CDATA[Send invoice mail to the customers when bulk invoice and capture.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>17</sort_order>
+              <sort_order>18</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -183,15 +203,17 @@
               <comment><![CDATA[Set the status of the order <b>before</b> the payment is completed.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_order_status</source_model>
-              <sort_order>18</sort_order>
+              <sort_order>19</sort_order>
               <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
             </order_status>
             <order_status_after_payment>
               <label><![CDATA[<b>Order status (After the payment is completed):</b>]]></label>
               <comment><![CDATA[Set the status of the order <b>after</b> the payment is completed.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_order_status</source_model>
-              <sort_order>19</sort_order>
+              <sort_order>20</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -201,14 +223,16 @@
               <comment><![CDATA[If enabled this will auto-cancel orders where no payment has been made in the time interval: from 1 day ago until 1 hour ago. <b>Notice!</b> For this to work you must setup cronjobs for your Magento installation. Contact your hosting provider for assistance on how to do so.]]></comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>20</sort_order>
+              <sort_order>21</sort_order>
               <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
             </useautocancel>
             <sort_order>
               <label><![CDATA[<b>Sort order:</b>]]></label>
               <comment><![CDATA[The order of which this payment method is displayed to the customer.]]></comment>
               <frontend_type>text</frontend_type>
-              <sort_order>21</sort_order>
+              <sort_order>22</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>

@@ -65,7 +65,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
 
             $payment = $order->getPayment();
             $pspReference = null;
-            if(isset($payment)) {
+            if (isset($payment)) {
                 $pspReference = $payment->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
             }
 
@@ -95,14 +95,16 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
                     }
                 }
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $session->addError($this->bamboraHelper->_s("An error occured. Please try again!"));
             Mage::logException($e);
             $this->_redirect("bambora/checkout/cancel");
         }
     }
 
-
+    /**
+     * Accept Action
+     */
     public function acceptAction()
     {
         Mage::getSingleton('checkout/session')->getQuote()->setIsActive(false)->save();
@@ -124,16 +126,14 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             try {
                 $order->setActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_CANCEL, true);
                 $order->cancel()->save();
-            }
-            catch (Mage_Core_Exception $e) {
+            } catch (Mage_Core_Exception $e) {
                 Mage::logException($e);
             }
             $items = $order->getItemsCollection();
             foreach ($items as $item) {
                 try {
                     $cart->addOrderItem($item);
-                }
-                catch (Mage_Core_Exception $e) {
+                } catch (Mage_Core_Exception $e) {
                     $session->addError($this->__($e->getMessage()));
                     Mage::logException($e);
                     continue;
@@ -143,7 +143,6 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
         }
         $this->_redirect('checkout/cart');
     }
-
 
     /**
      * Callback action
@@ -252,15 +251,13 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             if (!$this->bamboraHelper->validateCheckoutApiResult($transactionResponse, $txnId, true, $meassage)) {
                 return false;
             }
-        }
-        catch (Exception $ex) {
+        } catch (Exception $ex) {
             $message = $ex->getMessage();
             return false;
         }
 
         return true;
     }
-
 
     /**
      * Process the callback
@@ -281,8 +278,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
 
                 $this->updatePaymentData($order, $method->getConfigData(BamboraConstant::ORDER_STATUS_AFTER_PAYMENT, $storeId), $transactionResponse);
                 $feeAmount = $transactionResponse->transaction->total->feeamount;
-                if ((int)$method->getConfigData(BamboraConstant::ADD_SURCHARGE_TO_PAYMENT, $storeId) == 1 && isset($feeAmount) && (int)($feeAmount) > 0) {
-                    $this->addSurchargeItemToOrder($order, $transactionResponse);
+                if ((int)$method->getConfigData(BamboraConstant::ENABLE_SURCHARGE, $storeId) == 1 && isset($feeAmount) && (int)($feeAmount) > 0) {
+                    $this->addSurchargeToOrder($order, $transactionResponse, $method);
                 }
 
                 if ((int)$method->getConfigData(BamboraConstant::SEND_MAIL_ORDER_CONFIRMATION, $storeId) == 1) {
@@ -301,8 +298,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
                 }
             }
             $responseCode = '200';
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             Mage::logException($e);
             $message = "Callback Failed: " .$e->getMessage();
             $order->addStatusHistoryComment($message);
@@ -315,7 +311,6 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
         return $message;
     }
 
-
     /**
      * Update the payment data
      *
@@ -325,83 +320,79 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
      */
     private function updatePaymentData($order, $orderStatusAfterPayment, $transactionResponse)
     {
-        $payment = $order->getPayment();
-        $txnId = $transactionResponse->transaction->id;
-        $payment->setTransactionId($txnId);
-        $payment->setIsTransactionClosed(false);
-        $payment->setAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE, $txnId);
-        $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
-        $payment->setCcType($transactionResponse->transaction->information->paymentTypes[0]->displayName);
-        $payment->setCcNumberEnc($transactionResponse->transaction->information->primaryAccountnumbers[0]->number);
+        try {
+            $payment = $order->getPayment();
+            $txnId = $transactionResponse->transaction->id;
+            $payment->setTransactionId($txnId);
+            $payment->setIsTransactionClosed(false);
+            $payment->setAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE, $txnId);
+            $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
+            $payment->setCcType($transactionResponse->transaction->information->paymentTypes[0]->displayName);
+            $payment->setCcNumberEnc($transactionResponse->transaction->information->primaryAccountnumbers[0]->number);
 
-        $methodInstance = $this->getMethodInstance($order);
-        $isInstantCapture = (int)$methodInstance->getConfigData(BamboraConstant::INSTANT_CAPTURE, $order->getStoreId()) === 1 ? true : false;
+            $methodInstance = $this->getMethodInstance($order);
+            $isInstantCapture = (int)$methodInstance->getConfigData(BamboraConstant::INSTANT_CAPTURE, $order->getStoreId()) === 1 ? true : false;
 
-        $payment->setAdditionalInformation(BamboraConstant::INSTANT_CAPTURE, $isInstantCapture);
+            $payment->setAdditionalInformation(BamboraConstant::INSTANT_CAPTURE, $isInstantCapture);
 
-        $payment->save();
+            $payment->save();
 
-        $message = $this->bamboraHelper->_s("Payment authorization was a success.") . ' ' . $this->bamboraHelper->_s("Transaction ID").': '.$txnId;
-        $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
-        $order->save();
+            $message = $this->bamboraHelper->_s("Payment authorization was a success.") . ' ' . $this->bamboraHelper->_s("Transaction ID").': '.$txnId;
+            $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
+            $order->save();
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
-
 
     /**
      * Add Surcharge item to the order as a order line
      *
      * @param Mage_Sales_Model_Order $order
      * @param Bambora_Online_Model_Api_Checkout_Response_Transaction $transactionResponse
+     * @param Bambora_Online_Model_Checkout_Payment $method
      * @return void
      */
-    private function addSurchargeItemToOrder($order, $transactionResponse)
+    private function addSurchargeToOrder($order, $transactionResponse, $method)
     {
-        $baseFeeAmount = (float)$this->bamboraHelper->convertPriceFromMinorUnits($transactionResponse->transaction->total->feeamount, $transactionResponse->transaction->currency->minorunits);
-        $feeAmount = Mage::helper('directory')->currencyConvert($baseFeeAmount, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode());
+        try {
+            $baseFeeAmount = (float)$this->bamboraHelper->convertPriceFromMinorunits($transactionResponse->transaction->total->feeamount, $transactionResponse->transaction->currency->minorunits);
+            $feeAmount = Mage::helper('directory')->currencyConvert($baseFeeAmount, $order->getBaseCurrencyCode(), $order->getOrderCurrencyCode());
 
-        foreach ($order->getAllItems() as $item) {
-            if ($item->getSku() === BamboraConstant::BAMBORA_SURCHARGE) {
-                return;
+            foreach ($order->getAllItems() as $item) {
+                if ($item->getSku() === BamboraConstant::BAMBORA_SURCHARGE) {
+                    return;
+                }
             }
+
+            $text = $transactionResponse->transaction->information->paymentTypes[0]->displayName . ' - ' . $this->bamboraHelper->_s('Surcharge fee');
+            $storeId = $order->getStoreId();
+
+            if ($method->getConfigData(BamboraConstant::SURCHARGE_MODE) === BamboraConstant::SURCHARGE_ORDER_LINE) {
+                /** @var Mage_Sales_Model_Order_Item */
+                $feeItem = $this->bamboraHelper->createFeeItem($baseFeeAmount, $feeAmount, $storeId, $order->getId(), $text);
+                $order->addItem($feeItem);
+                $order->setBaseSubtotal($order->getBaseSubtotal() + $baseFeeAmount);
+                $order->setBaseSubtotalInclTax($order->getBaseSubtotalInclTax() + $baseFeeAmount);
+                $order->setSubtotal($order->getSubtotal() + $feeAmount);
+                $order->setSubtotalInclTax($order->getSubtotalInclTax() + $feeAmount);
+            } else {
+                //Add fee to shipment
+                $order->setBaseShippingAmount($order->getBaseShippingAmount() + $baseFeeAmount);
+                $order->setBaseShippingInclTax($order->getBaseShippingInclTax() + $baseFeeAmount);
+                $order->setShippingAmount($order->getShippingAmount() + $feeAmount);
+                $order->setShippingInclTax($order->getShippingInclTax() + $feeAmount);
+            }
+
+            $order->setBaseGrandTotal($order->getBaseGrandTotal() + $baseFeeAmount);
+            $order->setGrandTotal($order->getGrandTotal() + $feeAmount);
+
+            $feeMessage = $text . ' ' .$this->bamboraHelper->_s("added to order");
+            $order->addStatusHistoryComment($feeMessage);
+            $order->save();
+        } catch (Exception $e) {
+            throw $e;
         }
-
-        /** @var Mage_Sales_Model_Order_Item */
-        $feeItem = Mage::getModel('sales/order_item');
-
-        $feeItem->setSku(BamboraConstant::BAMBORA_SURCHARGE);
-        $text = $transactionResponse->transaction->information->paymentTypes[0]->displayName . ' - ' . $this->bamboraHelper->_s('Surcharge fee');
-        $feeItem->setName($text);
-        $feeItem->setBaseCost($baseFeeAmount);
-        $feeItem->setBasePrice($baseFeeAmount);
-        $feeItem->setBasePriceInclTax($baseFeeAmount);
-        $feeItem->setBaseOriginalPrice($baseFeeAmount);
-        $feeItem->setBaseRowTotal($baseFeeAmount);
-        $feeItem->setBaseRowTotalInclTax($baseFeeAmount);
-
-        $feeItem->setCost($feeAmount);
-        $feeItem->setPrice($feeAmount);
-        $feeItem->setPriceInclTax($feeAmount);
-        $feeItem->setOriginalPrice($feeAmount);
-        $feeItem->setRowTotal($feeAmount);
-        $feeItem->setRowTotalInclTax($feeAmount);
-
-        $feeItem->setProductType(Mage_Catalog_Model_Product_Type::TYPE_VIRTUAL);
-        $feeItem->setIsVirtual(1);
-        $feeItem->setQtyOrdered(1);
-        $feeItem->setStoreId($order->getStoreId());
-        $feeItem->setOrderId($order->getId());
-
-        $order->addItem($feeItem);
-
-        $order->setBaseGrandTotal($order->getBaseGrandTotal() + $baseFeeAmount);
-        $order->setBaseSubtotal($order->getBaseSubtotal() + $baseFeeAmount);
-        $order->setGrandTotal($order->getGrandTotal() + $feeAmount);
-        $order->setSubtotal($order->getSubtotal() + $feeAmount);
-
-
-        $feeMessage = $text . ' ' .$this->bamboraHelper->_s("added to order");
-        $order->addStatusHistoryComment($feeMessage);
-        $order->save();
     }
 
     /**
@@ -411,11 +402,15 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
      */
     private function sendOrderEmail($order)
     {
-        $order->sendNewOrderEmail();
-        $order->setIsCustomerNotified(1);
-        $order->addStatusHistoryComment(sprintf($this->bamboraHelper->_s("Notified customer about order #%s"), $order->getIncrementId()))
-            ->setIsCustomerNotified(true);
-        $order->save();
+        try {
+            $order->sendNewOrderEmail();
+            $order->setIsCustomerNotified(1);
+            $order->addStatusHistoryComment(sprintf($this->bamboraHelper->_s("Notified customer about order #%s"), $order->getIncrementId()))
+                ->setIsCustomerNotified(true);
+            $order->save();
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -425,32 +420,36 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
      */
     private function createInvoice($order)
     {
-        if ($order->canInvoice()) {
-            $invoice = $order->prepareInvoice();
-            $method = $this->getMethodInstance($order);
-            $storeId = $order->getStoreId();
+        try {
+            if ($order->canInvoice()) {
+                $invoice = $order->prepareInvoice();
+                $method = $this->getMethodInstance($order);
+                $storeId = $order->getStoreId();
 
-            if((int)$method->getConfigData(BamboraConstant::INSTANT_CAPTURE, $storeId) === 0 && (int)$method->getConfigData(BamboraConstant::REMOTE_INTERFACE, $storeId) === 1) {
-                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
-            } else {
-                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
+                if ((int)$method->getConfigData(BamboraConstant::INSTANT_CAPTURE, $storeId) === 0 && (int)$method->getConfigData(BamboraConstant::REMOTE_INTERFACE, $storeId) === 1) {
+                    $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
+                } else {
+                    $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
+                }
+
+                $invoice->register();
+                $invoice->save();
+
+                $transactionSave = Mage::getModel('core/resource_transaction')
+                  ->addObject($invoice)
+                  ->addObject($invoice->getOrder());
+                $transactionSave->save();
+
+                $method = $this->getMethodInstance($order);
+                if ((int)$method->getConfigData(BamboraConstant::INSTANT_INVOICE_MAIL, $order->getStoreId()) == 1) {
+                    $invoice->sendEmail();
+                    $order->addStatusHistoryComment(sprintf($this->bamboraHelper->_s("Notified customer about invoice #%s"), $invoice->getId()))
+                        ->setIsCustomerNotified(true);
+                    $order->save();
+                }
             }
-
-            $invoice->register();
-            $invoice->save();
-
-            $transactionSave = Mage::getModel('core/resource_transaction')
-              ->addObject($invoice)
-              ->addObject($invoice->getOrder());
-            $transactionSave->save();
-
-            $method = $this->getMethodInstance($order);
-            if ((int)$method->getConfigData(BamboraConstant::INSTANT_INVOICE_MAIL, $order->getStoreId()) == 1) {
-                $invoice->sendEmail();
-                $order->addStatusHistoryComment(sprintf($this->bamboraHelper->_s("Notified customer about invoice #%s"), $invoice->getId()))
-                    ->setIsCustomerNotified(true);
-                $order->save();
-            }
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 }

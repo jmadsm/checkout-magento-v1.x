@@ -12,6 +12,9 @@
  * @license   Bambora Online
  *
  */
+
+use Bambora_Online_Helper_BamboraConstant as BamboraConstant;
+
 class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
 {
     /**
@@ -68,44 +71,46 @@ class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Convert an amount to minorunits
      *
-     * @param $amount
-     * @param $minorUnits
-     * @param $defaultMinorUnits = 2
+     * @param mixed $amount
+     * @param mixed $minorunits
+     * @param mixed $roundingMode
      * @return int
      */
-    public function convertPriceToMinorUnits($amount, $minorUnits, $defaultMinorUnits = 2)
+    public function convertPriceToMinorunits($amount, $minorunits, $roundingMode)
     {
-        if ($minorUnits == "" || $minorUnits == null) {
-            $minorUnits = $defaultMinorUnits;
-        }
-
         if ($amount == "" || $amount == null) {
             return 0;
         }
 
-        return $amount * pow(10, $minorUnits);
-        ;
+        switch ($roundingMode) {
+            case BamboraConstant::ROUND_UP:
+                $amount = ceil($amount * pow(10, $minorunits));
+                break;
+            case BamboraConstant::ROUND_DOWN:
+                $amount = floor($amount * pow(10, $minorunits));
+                break;
+            default:
+                $amount = round($amount * pow(10, $minorunits));
+                break;
+        }
+
+        return $amount;
     }
 
     /**
      * Convert an amount from minorunits
      *
      * @param $amount
-     * @param $minorUnits
-     * @param $defaultMinorUnits = 2
+     * @param $minorunits
      * @return string
      */
-    public function convertPriceFromMinorUnits($amount, $minorUnits, $defaultMinorUnits = 2)
+    public function convertPriceFromMinorunits($amount, $minorunits)
     {
-        if ($minorUnits == "" || $minorUnits == null) {
-            $minorUnits = $defaultMinorUnits;
-        }
-
         if ($amount == "" || $amount == null) {
             return 0;
         }
 
-        return number_format($amount / pow(10, $minorUnits), $minorUnits);
+        return ($amount / pow(10, $minorunits));
     }
 
     /**
@@ -140,11 +145,75 @@ class Bambora_Online_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getCmsInfo()
     {
-        $bamboraVersion = (string) Mage::getConfig()->getNode()->modules->Mage_Epay->version;
+        $bamboraVersion = (string) Mage::getConfig()->getNode()->modules->Bambora_Online->version;
         $magentoVersion = Mage::getVersion();
         $result = 'Magento/' . $magentoVersion . ' Module/' . $bamboraVersion . ' PHP/'. phpversion();
 
         return $result;
+    }
+
+    /**
+     * Create a surcharge fee item
+     *
+     * @param mixed $baseFeeAmount
+     * @param mixed $feeAmount
+     * @param mixed $storeId
+     * @param mixed $orderId
+     * @param mixed $text
+     * @return Mage_Sales_Model_Order_Item
+     */
+    public function createFeeItem($baseFeeAmount, $feeAmount, $storeId, $orderId, $text)
+    {
+        /** @var Mage_Sales_Model_Order_Item */
+        $feeItem = Mage::getModel('sales/order_item');
+
+        $feeItem->setSku(BamboraConstant::BAMBORA_SURCHARGE);
+
+        $feeItem->setName($text);
+        $feeItem->setBaseCost($baseFeeAmount);
+        $feeItem->setBasePrice($baseFeeAmount);
+        $feeItem->setBasePriceInclTax($baseFeeAmount);
+        $feeItem->setBaseOriginalPrice($baseFeeAmount);
+        $feeItem->setBaseRowTotal($baseFeeAmount);
+        $feeItem->setBaseRowTotalInclTax($baseFeeAmount);
+
+        $feeItem->setCost($feeAmount);
+        $feeItem->setPrice($feeAmount);
+        $feeItem->setPriceInclTax($feeAmount);
+        $feeItem->setOriginalPrice($feeAmount);
+        $feeItem->setRowTotal($feeAmount);
+        $feeItem->setRowTotalInclTax($feeAmount);
+
+        $feeItem->setProductType(Mage_Catalog_Model_Product_Type::TYPE_VIRTUAL);
+        $feeItem->setIsVirtual(1);
+        $feeItem->setQtyOrdered(1);
+        $feeItem->setStoreId($storeId);
+        $feeItem->setOrderId($orderId);
+
+        return $feeItem;
+    }
+
+    /**
+     * Get tax rate based on order tax class
+     *
+     * @param mixed $order
+     * @param mixed $taxClass
+     * @return mixed
+     */
+    public function getTaxRate($order, $taxClass)
+    {
+        // Load the customer so we can retrevice the correct tax class id
+        $customer = Mage::getModel('customer/customer')
+            ->load($order->getCustomerId());
+        $calculation = Mage::getSingleton('tax/calculation');
+        $request = $calculation->getRateRequest(
+            $order->getShippingAddress(),
+            $order->getBillingAddress(),
+            $customer->getTaxClassId(),
+            $order->getStore()
+        );
+
+        return $calculation->getRate($request->setProductClassId($taxClass));
     }
 
     /**
