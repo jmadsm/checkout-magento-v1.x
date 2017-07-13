@@ -1,5 +1,5 @@
 <_>
-   <form_key>K4KlHkiFVMPFbjfR</form_key>
+   <form_key>WQZNqTaq2HPaOqPj</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,9 +14,17 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.1.5</version>
+   <version>1.2.0</version>
    <stability>stable</stability>
-   <notes>Fix for discount calculation when using invoice lines - now discount is in a separate line on the invoice
+   <notes>* Adds rounding mode in module configuration
+* Adds option for surcharge as order line or added to shipment
+* Refactoring of payment information on admin order page
+* Changed size of payment logos
+**This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. Also if you are running Magento on PHP 7.x there might be errors in the Magento calculation of tax and discount**
+
+**Notice:**
+- If you are upgrading from a version before 1.1.2 then you must re-enter your md5 key in the module configuration after updating to this version
+- If you use surcharge you must re-enable this and select the mode of which the surcharge should apply.
 </notes>
    <authors>
       <name>
@@ -46,7 +54,7 @@ http://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                                                                      </files>
+            <files>                                                                        </files>
          </files>
       </package>
       <extension>
