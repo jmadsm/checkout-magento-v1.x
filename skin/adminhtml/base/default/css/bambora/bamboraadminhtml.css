@@ -6,9 +6,10 @@
 }
 
 .bambora_paymentcard {
-    height: 17px;
+    max-width: 36px;
     position: relative;
     vertical-align: middle;
+    padding-left: 5px;
 }
 .bambora_operations_title{
     border-bottom:1pt solid black;

@@ -45,7 +45,7 @@ class Bambora_Online_Block_Checkout_Form extends Mage_Payment_Block_Form
         if (!empty($paymentCards)) {
             $res .= '<li>';
             foreach ($paymentCards as $paymentcard) {
-                $res .= '<img class="bambora_form_paymentcard" src="https://d3r1pwhfz7unl9.cloudfront.net/paymentlogos/'.$paymentcard.'.png" />';
+                $res .= '<img class="bambora_form_paymentcard" src="https://d3r1pwhfz7unl9.cloudfront.net/paymentlogos/'.$paymentcard.'.svg" />';
             }
             $res .= '</li>';
         }

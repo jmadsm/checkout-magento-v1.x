@@ -158,7 +158,7 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Admi
      */
     private function getPaymentLogoUrl($paymentId)
     {
-        return '<img class="bambora_paymentcard" src="https://d3r1pwhfz7unl9.cloudfront.net/paymentlogos/'.$paymentId . '.png"';
+        return '<img class="bambora_paymentcard" src="https://d3r1pwhfz7unl9.cloudfront.net/paymentlogos/'.$paymentId . '.svg"';
     }
 
 

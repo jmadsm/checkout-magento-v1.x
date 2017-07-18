@@ -4,7 +4,8 @@
 
 .bambora_form_paymentcard {
     display: inline-block;
-    padding: 2px 0;
+    padding: 6px 3px 6px 0;
+    max-width: 53px;
 }
 h2.bambora_redirect,
 h3.bambora_redirect {

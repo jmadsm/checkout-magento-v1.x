@@ -426,10 +426,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
                 $method = $this->getMethodInstance($order);
                 $storeId = $order->getStoreId();
 
-                if ((int)$method->getConfigData(BamboraConstant::INSTANT_CAPTURE, $storeId) === 0 && (int)$method->getConfigData(BamboraConstant::REMOTE_INTERFACE, $storeId) === 1) {
+                if ((int)$method->getConfigData(BamboraConstant::INSTANT_CAPTURE, $storeId) === 1) {
                     $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
-                } else {
-                    $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
                 }
 
                 $invoice->register();
