@@ -1,5 +1,5 @@
 <_>
-   <form_key>WQZNqTaq2HPaOqPj</form_key>
+   <form_key>cK1DPq7QdELhZVBI</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,12 +14,12 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.2.0</version>
+   <version>1.2.1</version>
    <stability>stable</stability>
-   <notes>* Adds rounding mode in module configuration
-* Adds option for surcharge as order line or added to shipment
-* Refactoring of payment information on admin order page
-* Changed size of payment logos
+   <notes>* New payment logos
+* Fix for missing subtotal when using surcharge as an order line
+* Changed instant invoice to, only capture if instant capture is on.
+
 **This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. Also if you are running Magento on PHP 7.x there might be errors in the Magento calculation of tax and discount**
 
 **Notice:**
@@ -54,7 +54,7 @@ http://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                                                                        </files>
+            <files>                                                                         </files>
          </files>
       </package>
       <extension>
