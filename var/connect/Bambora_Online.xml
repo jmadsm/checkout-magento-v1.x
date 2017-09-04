@@ -1,5 +1,5 @@
 <_>
-   <form_key>cK1DPq7QdELhZVBI</form_key>
+   <form_key>tC0FY7aBV33fy5dw</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,11 +14,9 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.2.1</version>
+   <version>1.2.2</version>
    <stability>stable</stability>
-   <notes>* New payment logos
-* Fix for missing subtotal when using surcharge as an order line
-* Changed instant invoice to, only capture if instant capture is on.
+   <notes>* Fix for potential fatal php error in CheckoutController.php
 
 **This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. Also if you are running Magento on PHP 7.x there might be errors in the Magento calculation of tax and discount**
 
@@ -54,7 +52,7 @@ http://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                                                                         </files>
+            <files>                                                                          </files>
          </files>
       </package>
       <extension>

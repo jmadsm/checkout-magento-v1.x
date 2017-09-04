@@ -4,7 +4,7 @@
     <payment>
       <groups>
         <bamboracheckout module="bambora">
-          <label>Bambora Checkout 1.2.1</label>
+          <label>Bambora Checkout 1.2.2</label>
           <comment><![CDATA[Detailed description of these settings are to be found <a href="http://dev.bambora.com/shopping-carts/guides/shopping-carts/magento" target="_blank">here</a>.<br><br>]]></comment>
           <frontend_type>text</frontend_type>
           <sort_order>1</sort_order>
