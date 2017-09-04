@@ -65,7 +65,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
 
             $payment = $order->getPayment();
             $pspReference = null;
-            if (isset($payment)) {
+            if ($payment instanceof Mage_Sales_Model_Order_Payment) {
                 $pspReference = $payment->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
             }
 
