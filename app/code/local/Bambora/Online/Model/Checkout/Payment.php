@@ -44,12 +44,12 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
     /**
      * @var string
      */
-    private $_apiKey;
+    protected $_apiKey;
 
     /**
      * @var Bambora_Online_Helper_Data
      */
-    private $bamboraHelper;
+    protected $bamboraHelper;
 
     // Default constructor
     //
