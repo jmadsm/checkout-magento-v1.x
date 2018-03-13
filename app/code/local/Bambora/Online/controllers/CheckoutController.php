@@ -78,24 +78,21 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
                 if (!isset($paymentWindow)) {
                     $this->_redirectUrl($paymentMethod->getCancelUrl());
                 } else {
-                    //If payment window is set to full screen
-                    if ((int)$paymentMethod->getConfigData(BamboraConstant::WINDOW_STATE, $paymentMethod->getStore()->getStoreId()) === 1) {
-                        $this->_redirectUrl($paymentWindow->url);
-                    } else {
-                        $paymentData = array("paymentWindowUrl"=> $paymentMethod->getCheckoutPaymentWindowUrl(),
-                                                 "bamboraCheckoutUrl"=> $paymentWindow->url,
-                                                 "cancelUrl"=> $paymentMethod->getCancelUrl(),
-                                                 "headerText"=> $this->bamboraHelper->_s("Thank you for using Bambora Checkout"),
-                                                 "headerText2"=> $this->bamboraHelper->_s("Please wait..."));
-
-                        $this->loadLayout();
-                        $block = $this->getLayout()->createBlock('bambora/checkout_redirect', 'bamboraredirect', $paymentData);
-                        $this->getLayout()->getBlock('content')->append($block);
-                        $this->renderLayout();
-                    }
+                    $windowState = $paymentMethod->getConfigData(BamboraConstant::WINDOW_STATE, $paymentMethod->getStore()->getStoreId());
+                    $paymentData = array(
+                        "checkoutToken"=> $paymentWindow->token,
+                        "windowState" => $windowState,
+                        "headerText"=> $this->bamboraHelper->_s("Thank you for using Bambora Checkout"),
+                        "headerText2"=> $this->bamboraHelper->_s("Please wait...")
+                        );
+                    $this->loadLayout();
+                    $block = $this->getLayout()->createBlock('bambora/checkout_redirect', 'bamboraredirect', $paymentData);
+                    $this->getLayout()->getBlock('content')->append($block);
+                    $this->renderLayout();
                 }
             }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             $session->addError($this->bamboraHelper->_s("An error occured. Please try again!"));
             Mage::logException($e);
             $this->_redirect("bambora/checkout/cancel");
@@ -126,14 +123,16 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             try {
                 $order->setActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_CANCEL, true);
                 $order->cancel()->save();
-            } catch (Mage_Core_Exception $e) {
+            }
+            catch (Mage_Core_Exception $e) {
                 Mage::logException($e);
             }
             $items = $order->getItemsCollection();
             foreach ($items as $item) {
                 try {
                     $cart->addOrderItem($item);
-                } catch (Mage_Core_Exception $e) {
+                }
+                catch (Mage_Core_Exception $e) {
                     $session->addError($this->__($e->getMessage()));
                     Mage::logException($e);
                     continue;
@@ -251,7 +250,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             if (!$this->bamboraHelper->validateCheckoutApiResult($transactionResponse, $txnId, true, $meassage)) {
                 return false;
             }
-        } catch (Exception $ex) {
+        }
+        catch (Exception $ex) {
             $message = $ex->getMessage();
             return false;
         }
@@ -298,7 +298,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
                 }
             }
             $responseCode = '200';
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             Mage::logException($e);
             $message = "Callback Failed: " .$e->getMessage();
             $order->addStatusHistoryComment($message);
@@ -330,8 +331,10 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             $payment->setCcType($transactionResponse->transaction->information->paymentTypes[0]->displayName);
             $payment->setCcNumberEnc($transactionResponse->transaction->information->primaryAccountnumbers[0]->number);
 
-            $methodInstance = $this->getMethodInstance($order);
-            $isInstantCapture = (int)$methodInstance->getConfigData(BamboraConstant::INSTANT_CAPTURE, $order->getStoreId()) === 1 ? true : false;
+            $isInstantCapture = false;
+            if($transactionResponse->transaction->total->authorized === $transactionResponse->transaction->total->captured) {
+                $isInstantCapture = true;
+            }
 
             $payment->setAdditionalInformation(BamboraConstant::INSTANT_CAPTURE, $isInstantCapture);
 
@@ -340,7 +343,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             $message = $this->bamboraHelper->_s("Payment authorization was a success.") . ' ' . $this->bamboraHelper->_s("Transaction ID").': '.$txnId;
             $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $orderStatusAfterPayment, $message, false);
             $order->save();
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             throw $e;
         }
     }
@@ -390,7 +394,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             $feeMessage = $text . ' ' .$this->bamboraHelper->_s("added to order");
             $order->addStatusHistoryComment($feeMessage);
             $order->save();
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             throw $e;
         }
     }
@@ -408,7 +413,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             $order->addStatusHistoryComment(sprintf($this->bamboraHelper->_s("Notified customer about order #%s"), $order->getIncrementId()))
                 ->setIsCustomerNotified(true);
             $order->save();
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             throw $e;
         }
     }
@@ -423,13 +429,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
         try {
             if ($order->canInvoice()) {
                 $invoice = $order->prepareInvoice();
-                $method = $this->getMethodInstance($order);
-                $storeId = $order->getStoreId();
-
-                if ((int)$method->getConfigData(BamboraConstant::INSTANT_CAPTURE, $storeId) === 1) {
-                    $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
-                }
-
+                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_ONLINE);
                 $invoice->register();
                 $invoice->save();
 
@@ -446,7 +446,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
                     $order->save();
                 }
             }
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             throw $e;
         }
     }

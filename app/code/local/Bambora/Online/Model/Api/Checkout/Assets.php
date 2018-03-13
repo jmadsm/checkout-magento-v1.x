@@ -17,18 +17,6 @@ use Bambora_Online_Model_Api_Checkout_Constant_Endpoint as Endpoint;
 class Bambora_Online_Model_Api_Checkout_Assets extends Bambora_Online_Model_Api_Checkout_Base
 {
     /**
-     * Get Bambora Checkout payment window js url
-     *
-     * @return string
-     */
-    public function getCheckoutPaymentWindowJSUrl()
-    {
-        $url = $this->_getEndpoint(Endpoint::ENDPOINT_CHECKOUT_ASSETS).'/paymentwindow-v1.min.js';
-
-        return $url;
-    }
-
-    /**
      * Get Checkout payment window js url
      *
      * @return string

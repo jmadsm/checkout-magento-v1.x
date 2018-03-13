@@ -812,18 +812,6 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
     }
 
     /**
-     * Get Bambora Checkout Payment window url
-     *
-     * @return string
-     */
-    public function getCheckoutPaymentWindowUrl()
-    {
-        /** @var Bambora_Online_Model_Api_Checkout_Assets */
-        $assetsApi = Mage::getModel(CheckoutApi::API_ASSETS);
-        return $assetsApi->getCheckoutPaymentWindowJSUrl();
-    }
-
-    /**
      * Get Admin message handler
      *
      * @return Mage_Core_Model_Abstract
