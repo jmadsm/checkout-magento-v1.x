@@ -118,27 +118,32 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
         $larstOrderId = $session->getLastRealOrderId();
         $order = Mage::getModel('sales/order')->loadByIncrementId($larstOrderId);
         if ($order->getId()) {
-            $session->getQuote()->setIsActive(0)->save();
-            $session->clear();
-            try {
-                $order->setActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_CANCEL, true);
-                $order->cancel()->save();
-            }
-            catch (Mage_Core_Exception $e) {
-                Mage::logException($e);
-            }
-            $items = $order->getItemsCollection();
-            foreach ($items as $item) {
+            /** @var Mage_Sales_Model_Order_Payment */
+            $orderPayment = $order->getPayment();
+            $pspReference = $orderPayment->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
+            if(empty($pspReference)){
+                $session->getQuote()->setIsActive(0)->save();
+                $session->clear();
                 try {
-                    $cart->addOrderItem($item);
+                    $order->setActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_CANCEL, true);
+                    $order->cancel()->save();
                 }
                 catch (Mage_Core_Exception $e) {
-                    $session->addError($this->__($e->getMessage()));
                     Mage::logException($e);
-                    continue;
                 }
+                $items = $order->getItemsCollection();
+                foreach ($items as $item) {
+                    try {
+                        $cart->addOrderItem($item);
+                    }
+                    catch (Mage_Core_Exception $e) {
+                        $session->addError($this->__($e->getMessage()));
+                        Mage::logException($e);
+                        continue;
+                    }
+                }
+                $cart->save();
             }
-            $cart->save();
         }
         $this->_redirect('checkout/cart');
     }
