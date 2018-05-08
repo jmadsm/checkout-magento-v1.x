@@ -1,0 +1,17 @@
+# app/code
+app/code/local/Bambora/Online    app/code/local/Bambora/Online
+# app/etc
+app/etc/modules/Bambora_Online.xml    app/etc/modules/Bambora_Online.xml
+# app/locale
+app/locale/da_DK/Bambora_Online.csv    app/locale/da_DK/Bambora_Online.csv
+app/locale/en_US/Bambora_Online.csv    app/locale/en_US/Bambora_Online.csv
+# app/design
+app/design/adminhtml/default/default/layout/bambora.xml    app/design/adminhtml/default/default/layout/bambora.xml
+app/design/adminhtml/default/default/template/bambora/order/view/tab/info.phtml    app/design/adminhtml/default/default/template/bambora/order/view/tab/info.phtml
+app/design/frontend/base/default/layout/bambora.xml    app/design/frontend/base/default/layout/bambora.xml
+app/design/frontend/base/default/template/bambora/checkout/form.phtml    app/design/frontend/base/default/template/bambora/checkout/form.phtml
+# skin
+skin/adminhtml/base/default/css/bambora/bamboraadminhtml.css    skin/adminhtml/base/default/css/bambora/bamboraadminhtml.css
+skin/frontend/base/default/css/bambora/bamborafrontend.css    skin/frontend/base/default/css/bambora/bamborafrontend.css
+# var
+var/connect    var/connect
