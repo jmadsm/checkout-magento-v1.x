@@ -1,5 +1,5 @@
 <_>
-   <form_key>ABtSvNEbF2Zs4r8f</form_key>
+   <form_key>qX2ReaVgfMb0uHXr</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,9 +14,9 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.3.1</version>
+   <version>1.3.2</version>
    <stability>stable</stability>
-   <notes>* Adds check for existing psp reference on payment canceling from payment window
+   <notes>* Fix for truncated card number not being encrypted when saved in the magento database.
 
 
 * Fix for wrong min PHP dependency. New min PHP dependency is now 5.5
@@ -64,7 +64,7 @@ http://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                                                                                 </files>
+            <files>                                                                                     </files>
          </files>
       </package>
       <extension>
