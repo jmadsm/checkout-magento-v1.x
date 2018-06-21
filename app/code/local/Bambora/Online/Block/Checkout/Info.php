@@ -34,7 +34,16 @@ class Bambora_Online_Block_Checkout_Info extends Mage_Payment_Block_Info
         $payment = $order->getPayment();
         $transactionId = $payment->getAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE);
         $paymentType = $payment->getCcType();
-        $truncatedCardNumber = $payment->getCcNumberEnc();
+        $truncatedCardNumberEncrypted = $payment->getCcNumberEnc();
+        $truncatedCardNumber = "";
+        if(!empty($truncatedCardNumberEncrypted)) {
+            if(!strpos($truncatedCardNumberEncrypted, "XXXX")) {
+                $truncatedCardNumber = Mage::helper('core')->decrypt($truncatedCardNumberEncrypted);
+            } else {
+                $truncatedCardNumber = $truncatedCardNumberEncrypted;
+            }
+        }
+       
 
         /** @var Bambora_Online_Helper_Data */
         $bamboraHelper = Mage::helper('bambora');

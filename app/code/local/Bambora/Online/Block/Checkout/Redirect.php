@@ -39,7 +39,7 @@ class Bambora_Online_Block_Checkout_Redirect extends Mage_Core_Block_Template
                             window.location.href = payload.acceptUrl;
                         });
 
-                        checkout.show();
+                        checkout.show();                       
                     }
                     </script>';
         return $html;

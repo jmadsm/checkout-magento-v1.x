@@ -334,7 +334,10 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             $payment->setAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE, $txnId);
             $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
             $payment->setCcType($transactionResponse->transaction->information->paymentTypes[0]->displayName);
-            $payment->setCcNumberEnc($transactionResponse->transaction->information->primaryAccountnumbers[0]->number);
+            
+            $truncatedCardNumber = $transactionResponse->transaction->information->primaryAccountnumbers[0]->number;
+            $truncatedCardNumberEncrypted = Mage::helper('core')->encrypt($truncatedCardNumber);
+            $payment->setCcNumberEnc($truncatedCardNumberEncrypted);
 
             $isInstantCapture = false;
             if($transactionResponse->transaction->total->authorized === $transactionResponse->transaction->total->captured) {
