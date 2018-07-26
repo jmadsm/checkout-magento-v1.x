@@ -37,7 +37,7 @@ class Bambora_Online_Block_Checkout_Info extends Mage_Payment_Block_Info
         $truncatedCardNumberEncrypted = $payment->getCcNumberEnc();
         $truncatedCardNumber = "";
         if(!empty($truncatedCardNumberEncrypted)) {
-            if(!strpos($truncatedCardNumberEncrypted, "XXXX")) {
+            if(strpos($truncatedCardNumberEncrypted, "XXXX") === false) {
                 $truncatedCardNumber = Mage::helper('core')->decrypt($truncatedCardNumberEncrypted);
             } else {
                 $truncatedCardNumber = $truncatedCardNumberEncrypted;
