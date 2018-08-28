@@ -14,7 +14,7 @@ http://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>http://www.bambora.com/</license_uri>
-   <version>1.3.3</version>
+   <version>1.3.4</version>
    <stability>stable</stability>
    <notes>* Adds initialize before opening checkout payment window
 
