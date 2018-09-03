@@ -1,5 +1,5 @@
 <_>
-   <form_key>BNmjKZEnSam93Gwy</form_key>
+   <form_key>1WsrNnp7sjszkAsg</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -10,28 +10,15 @@
 
 Bambora Online is quick and easy to set up. While your customers enjoy a convenient shopping experience, you get an effective, practical solution with a high conversion rate.
 
-http://www.bambora.com/
+https://www.bambora.com/
 </description>
    <license>Bambora</license>
-   <license_uri>http://www.bambora.com/</license_uri>
+   <license_uri>https://www.bambora.com/</license_uri>
    <version>1.3.4</version>
    <stability>stable</stability>
-   <notes>* Fix for ES6 syntax in Checkout Web SDK integration   
+   <notes>* Fix for ES6 syntax in Checkout Web SDK integration
 
-* Adds initialize before opening checkout payment window
-
-* Fix for wrong min PHP dependency. New min PHP dependency is now 5.5
-
-* Fix for Instant-Invoice not setting capture case to Online when not Instant-capture. Instant-invoice will now capture the transaction when enabled
-
-* Changed parameters in Payment.php to protected (Thanks @jonasmoltke)
-
-* Adds new Checkout Web SDK
-
-* Adds warning to Instant-invoice setting description
-
-
-**This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. Also if you are running Magento on PHP 7.x there might be errors in the Magento calculation of tax and discount**
+**This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. 
 
 **Notice:**
 - If you are upgrading from a version before 1.1.2 then you must re-enter your md5 key in the module configuration after updating to this version
@@ -45,7 +32,7 @@ http://www.bambora.com/
          <user>bambora</user>
       </user>
       <email>
-         <email>shoppingcarts@bambora.com</email>
+         <email>support@bambora.com</email>
       </email>
    </authors>
    <depends_php_min>5.5.0</depends_php_min>
@@ -65,7 +52,7 @@ http://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                                                                                      </files>
+            <files>                                                                                           </files>
          </files>
       </package>
       <extension>
