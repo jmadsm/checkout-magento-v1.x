@@ -70,10 +70,10 @@ class Bambora_Online_Block_Adminhtml_Sales_Order_View_Tab_Info extends Mage_Admi
                 return $this->bamboraHelper->_s("There is not registered any payment for this order yet!");
             }
 
-            $bamboraTransaction = $paymentMethod->getTransaction($transactionId, $order->getIncrementId());
+            $bamboraTransaction = $paymentMethod->getTransaction($transactionId, $order);
             $paymentInfoHtml = $this->createCheckoutTransactionHtml($bamboraTransaction);
 
-            $bamboraTransactionOperations = $paymentMethod->getTransactionOperations($transactionId, $order->getIncrementId());
+            $bamboraTransactionOperations = $paymentMethod->getTransactionOperations($transactionId, $order);
             if (count($bamboraTransactionOperations) > 0) {
                 $paymentInfoHtml .= $this->createCheckoutTransactionOperationsHtml($bamboraTransactionOperations);
             }

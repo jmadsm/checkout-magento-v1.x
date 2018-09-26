@@ -42,11 +42,6 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
     }
 
     /**
-     * @var string
-     */
-    protected $_apiKey;
-
-    /**
      * @var Bambora_Online_Helper_Data
      */
     protected $bamboraHelper;
@@ -65,8 +60,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
      */
     public function getApiKey($storeId = null)
     {
-        if (empty($this->_apiKey)) {
-            $storeId = isset($storeId) ? $this->getStore()->getId() : $storeId;
+			$storeId = isset($storeId) ?  $storeId : $this->getStore()->getId();
 
             $accesstoken = $this->getConfigData(BamboraConstant::ACCESS_TOKEN, $storeId);
             $merchantNumber = $this->getConfigData(BamboraConstant::MERCHANT_NUMBER, $storeId);
@@ -76,10 +70,7 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $combined = $accesstoken . '@' . $merchantNumber .':'. $secrettoken;
             $encodedKey = base64_encode($combined);
 
-            $this->_apiKey = 'Basic '.$encodedKey;
-        }
-
-        return $this->_apiKey;
+			return 'Basic '.$encodedKey;
     }
 
     /**
@@ -104,7 +95,6 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
 
         /** @var Bambora_Online_Model_Api_Checkout_Merchant */
         $merchantApi = Mage::getModel(CheckoutApi::API_MERCHANT);
-
         $paymentTypeResponse = $merchantApi->getPaymentTypes($currency, $amountMinorunits, $this->getApiKey());
 
         $message = "";
@@ -126,15 +116,16 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
     /**
      * Get Bambora Checkout payment window
      *
+	 * @param  Mage_Sales_Model_Order $order
      * @return Bambora_Online_Model_Api_Checkout_Response_Checkout
      */
-    public function getPaymentWindow()
+    public function getPaymentWindow($order)
     {
         $checkoutRequest = $this->createCheckoutRequest();
-
+		$storeId = $order->getStoreId();
         /** @var Bambora_Online_Model_Api_Checkout_Checkout */
         $checkoutApi = Mage::getModel(CheckoutApi::API_CHECKOUT);
-        $checkoutResponse = $checkoutApi->setCheckout($checkoutRequest, $this->getApiKey());
+        $checkoutResponse = $checkoutApi->setCheckout($checkoutRequest, $this->getApiKey($storeId));
 
         $message = "";
         if (!$this->bamboraHelper->validateCheckoutApiResult($checkoutResponse, $checkoutRequest->order->ordernumber, false, $message)) {
@@ -341,10 +332,10 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
 
 
             $captureRequest->invoicelines = $invoiceLines;
-
+			$storeId = $order->getStoreId();
             /** @var Bambora_Online_Model_Api_Checkout_Transaction */
             $transactionApi = Mage::getModel(CheckoutApi::API_TRANSACTION);
-            $captureResponse = $transactionApi->capture($transactionId, $captureRequest, $this->getApiKey());
+            $captureResponse = $transactionApi->capture($transactionId, $captureRequest, $this->getApiKey($storeId));
 
             $message = "";
             if (!$this->bamboraHelper->validateCheckoutApiResult($captureResponse, $order->getIncrementId(), true, $message)) {
@@ -376,7 +367,9 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             }
 
             $transactionId = $payment->getAdditionalInformation($this::PSP_REFERENCE);
-            $order = $payment->getOrder();
+
+			/** @var Mage_Sales_Model_Order */
+			$order = $payment->getOrder();
 
             $currency = $order->getBaseCurrencyCode();
             $minorunits = $this->bamboraHelper->getCurrencyMinorunits($currency);
@@ -389,9 +382,10 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             $creditMemo = $payment->getCreditmemo();
             $creditRequest->invoicelines = $this->getRefundInvoiceLines($creditMemo, $order);
 
+			$storeId = $order->getStoreId();
             /** @var Bambora_Online_Model_Api_Checkout_Transaction */
             $transactionApi = Mage::getModel(CheckoutApi::API_TRANSACTION);
-            $creditResponse = $transactionApi->credit($transactionId, $creditRequest, $this->getApiKey());
+            $creditResponse = $transactionApi->credit($transactionId, $creditRequest, $this->getApiKey($storeId));
             $message = "";
             if (!$this->bamboraHelper->validateCheckoutApiResult($creditResponse, $order->getIncrementId(), true, $message)) {
                 throw new Exception($this->bamboraHelper->_s("The refund action failed.") . ' - '.$message);
@@ -433,11 +427,13 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
             }
 
             $transactionId = $payment->getAdditionalInformation($this::PSP_REFERENCE);
-            $order = $payment->getOrder();
 
+			/** @var Mage_Sales_Model_Order */
+			$order = $payment->getOrder();
+			$storeId = $order->getStoreId();
             /** @var Bambora_Online_Model_Api_Checkout_Transaction */
             $transactionApi = Mage::getModel(CheckoutApi::API_TRANSACTION);
-            $deleteResponse = $transactionApi->delete($transactionId, $this->getApiKey());
+            $deleteResponse = $transactionApi->delete($transactionId, $this->getApiKey($storeId));
             $message = "";
             if (!$this->bamboraHelper->validateCheckoutApiResult($deleteResponse, $order->getIncrementId(), true, $message)) {
                 throw new Exception($this->bamboraHelper->_s("The void action failed.") . ' - '.$message);
@@ -461,20 +457,21 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
      * Get Bambora Checkout Transaction
      *
      * @param string $transactionId
-     * @param mixed $orderId
-     * @param bool $showError
+	 * @param Mage_Sales_Model_Order $order
      * @return Bambora_Online_Model_Api_Checkout_Response_Transaction|null
      * @throws Exception
      */
-    public function getTransaction($transactionId, $orderId)
+    public function getTransaction($transactionId, $order)
     {
         $transaction = null;
         try {
             /** @var Bambora_Online_Model_Api_Checkout_Merchant */
             $merchantApi = Mage::getModel(CheckoutApi::API_MERCHANT);
-            $transactionResponse = $merchantApi->getTransaction($transactionId, $this->getApiKey());
+			$storeId = $order->getStoreId();
+            $transactionResponse = $merchantApi->getTransaction($transactionId, $this->getApiKey($storeId));
 
             $message = "";
+			$orderId = $order->getIncrementId();
             if (!$this->bamboraHelper->validateCheckoutApiResult($transactionResponse, $orderId, true, $message)) {
                 throw new Exception($this->bamboraHelper->_s("The Get Transaction action failed.") . ' - '.$message);
             }
@@ -490,18 +487,20 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
      * Get Bambora Checkout Transaction
      *
      * @param string $transactionId
-     * @param mixed $orderId
+     * @param Mage_Sales_Model_Order $order
      * @param bool $showError
      * @return Bambora_Online_Model_Api_Checkout_Response_Transaction|null
      * @throws Exception
      */
-    public function getTransactionOperations($transactionId, $orderId)
+    public function getTransactionOperations($transactionId, $order)
     {
         $transactionOperations = null;
         try {
+			$storeId = $order->getStoreId();
+			$orderId = $order->getIncrementId();
             /** @var Bambora_Online_Model_Api_Checkout_Merchant */
             $merchantApi = Mage::getModel(CheckoutApi::API_MERCHANT);
-            $listTransactionOperationsResponse = $merchantApi->getTransactionOperations($transactionId, $this->getApiKey());
+            $listTransactionOperationsResponse = $merchantApi->getTransactionOperations($transactionId, $this->getApiKey($storeId));
 
             $message = "";
             if (!$this->bamboraHelper->validateCheckoutApiResult($listTransactionOperationsResponse, $orderId, true, $message)) {

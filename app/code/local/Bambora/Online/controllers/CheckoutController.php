@@ -74,7 +74,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
                 $this->_redirect('checkout/cart');
             } else {
                 $paymentMethod = $this->getMethodInstance($order);
-                $paymentWindow = $paymentMethod->getPaymentWindow();
+                $paymentWindow = $paymentMethod->getPaymentWindow($order);
                 if (!isset($paymentWindow)) {
                     $this->_redirectUrl($paymentMethod->getCancelUrl());
                 } else {
@@ -243,7 +243,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             }
 
             //Validate Transaction
-            $apiKey = $method->getApiKey($order->getStoreId());
+			$storeId = $order->getStoreId();
+            $apiKey = $method->getApiKey($storeId);
 
             /** @var Bambora_Online_Model_Api_Checkout_Merchant */
             $merchantApi = Mage::getModel(CheckoutApi::API_MERCHANT);
@@ -334,7 +335,7 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
             $payment->setAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE, $txnId);
             $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
             $payment->setCcType($transactionResponse->transaction->information->paymentTypes[0]->displayName);
-            
+
             $truncatedCardNumber = $transactionResponse->transaction->information->primaryAccountnumbers[0]->number;
             $truncatedCardNumberEncrypted = Mage::helper('core')->encrypt($truncatedCardNumber);
             $payment->setCcNumberEnc($truncatedCardNumberEncrypted);
