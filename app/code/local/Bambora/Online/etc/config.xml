@@ -2,7 +2,7 @@
 <config>
   <modules>
     <Bambora_Online>
-      <version>1.3.4</version>
+      <version>1.4.0</version>
     </Bambora_Online>
   </modules>
   <global>
