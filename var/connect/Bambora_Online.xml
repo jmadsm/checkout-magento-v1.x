@@ -1,5 +1,5 @@
 <_>
-   <form_key>FmvHdWmVVJfEhEeo</form_key>
+   <form_key>8QvFtM0MDJtwgE6Y</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,9 +14,9 @@ https://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>https://www.bambora.com/</license_uri>
-   <version>1.4.0</version>
+   <version>1.4.1</version>
    <stability>stable</stability>
-   <notes>* Adds multi-merchant authentication based on storeId
+   <notes>* Fix for transaction id being rounded if the id is too high a number.
 
 **This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. 
 
@@ -52,7 +52,7 @@ https://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                                                                                             </files>
+            <files>                                                                                              </files>
          </files>
       </package>
       <extension>
@@ -134,4 +134,8 @@ https://www.bambora.com/
          <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>
