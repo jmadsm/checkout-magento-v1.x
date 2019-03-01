@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017. All rights reserved Bambora Online.
+ * Copyright (c) 2019. All rights reserved Bambora Online.
  *
  * This program is free software. You are allowed to use the software but NOT allowed to modify the software.
  * It is also not legal to do any changes to the software and distribute it in your own name / brand.
@@ -8,7 +8,7 @@
  * All use of the payment modules happens at your own risk. We offer a free test account that you can use to test the module.
  *
  * @author    Bambora Online
- * @copyright Bambora Online (http://bambora.com)
+ * @copyright Bambora Online (https://bambora.com)
  * @license   Bambora Online
  *
  */
@@ -17,6 +17,19 @@ use Bambora_Online_Model_Api_Checkout_Constant_Model as Model;
 
 class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model_Api_Checkout_Base
 {
+    /**
+     * The endpoint for the Api service
+     *
+     * @param string $serviceEndpoint
+     */
+    private $serviceEndpoint;
+
+    /**
+     * Constructor
+     */
+    function __construct() {
+        $this->serviceEndpoint = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION);
+    }
     /**
      * Capture an amount for a given transaction
      *
@@ -28,8 +41,7 @@ class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model
     public function capture($transactionId, $captureRequest, $apikey)
     {
         try {
-            $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION) .'/transactions/'.  sprintf('%.0F', $transactionId) . '/capture';
-
+            $serviceUrl = "{$this->serviceEndpoint}/transactions/{$transactionId}/capture";
             $captureRequestJson = json_encode($captureRequest);
 
             $resultJson = $this->_callRestService($serviceUrl, $captureRequestJson, Zend_Http_Client::POST, $apikey);
@@ -62,12 +74,12 @@ class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model
      * @param string $transactionId
      * @param Bambora_Online_Model_Api_Checkout_Request_Credit $creditRequest
      * @param string $apikey
-     * @return Bambora_Online_Model_Api_Checkout_Response_Capture
+     * @return Bambora_Online_Model_Api_Checkout_Response_Credit
      */
     public function credit($transactionId, $creditRequest, $apikey)
     {
         try {
-            $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION).'/transactions/'.  sprintf('%.0F', $transactionId) . '/credit';
+            $serviceUrl = "{$this->serviceEndpoint}/transactions/{$transactionId}/credit";
             $creditRequestJson = json_encode($creditRequest);
 
             $resultJson = $this->_callRestService($serviceUrl, $creditRequestJson, Zend_Http_Client::POST, $apikey);
@@ -104,7 +116,7 @@ class Bambora_Online_Model_Api_Checkout_Transaction extends Bambora_Online_Model
     public function delete($transactionId, $apikey)
     {
         try {
-            $serviceUrl = $this->_getEndpoint(Endpoint::ENDPOINT_TRANSACTION).'/transactions/'.  sprintf('%.0F', $transactionId) . '/delete';
+            $serviceUrl = "{$this->serviceEndpoint}/transactions/{$transactionId}/delete";
             $resultJson = $this->_callRestService($serviceUrl, null, Zend_Http_Client::POST, $apikey);
             $result = json_decode($resultJson, true);
 
