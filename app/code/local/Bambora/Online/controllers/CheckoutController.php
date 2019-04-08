@@ -229,9 +229,8 @@ class Bambora_Online_CheckoutController extends Mage_Core_Controller_Front_Actio
                 $accept_params = $this->getRequest()->getParams();
                 $var = "";
                 foreach ($accept_params as $key => $value) {
-                    if ($key != "hash") {
-                        $var .= $value;
-                    }
+                    if ($key === "hash") break;
+                    $var .= $value;
                 }
 
                 $storeHash = md5($var . $storeMd5);
