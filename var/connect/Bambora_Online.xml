@@ -1,5 +1,5 @@
 <_>
-   <form_key>7TBgQ0Nq47Qtoosu</form_key>
+   <form_key>9ALbwvXixI6Fsaln</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,9 +14,9 @@ https://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>https://www.bambora.com/</license_uri>
-   <version>1.4.3</version>
+   <version>1.4.4</version>
    <stability>stable</stability>
-   <notes>* Fix for wrong totalPrice on Bambora Invoice object when line quantity more than 1. 
+   <notes>* Fix missing invoiceline description when capture or refund 
 
 **This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. 
 
@@ -52,7 +52,7 @@ https://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                                                                                                 </files>
+            <files>                                                                                                  </files>
          </files>
       </package>
       <extension>
