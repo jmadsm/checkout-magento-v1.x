@@ -545,12 +545,13 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
 
         // Add Shipment
         /** @var Bambora_Online_Model_Api_Checkout_Request_Model_Line */
+        $shippingDescription = $invoice->getShippingDescription();
         $invoiceShipping = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
-        $invoiceShipping->description = $order->getShippingDescription();
+        $invoiceShipping->description = isset($shippingDescription) ? $shippingDescription : $this->bamboraHelper->_s("shipping");
         $invoiceShipping->id = $this->bamboraHelper->_s("shipping");
         $invoiceShipping->linenumber = count($lines) + 1;
         $invoiceShipping->quantity = 1;
-        $invoiceShipping->text = $order->getShippingDescription();
+        $invoiceShipping->text = isset($shippingDescription) ? $shippingDescription : $this->bamboraHelper->_s("shipping");
         $invoiceShipping->totalprice = $this->bamboraHelper->convertPriceToMinorunits($invoice->getBaseShippingAmount(), $minorunits, $roundingMode);
         $invoiceShipping->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($invoice->getShippingInclTax(), $minorunits, $roundingMode);
         $invoiceShipping->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorunits($invoice->getShippingTaxAmount(), $minorunits, $roundingMode);
@@ -564,12 +565,13 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
 
 
         // Add Discount
+        $discountDescription = $invoice->getDiscountDescription();
         $invoiceDiscount = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
-        $invoiceDiscount->description = $invoice->getDiscountDescription();
+        $invoiceDiscount->description = isset($discountDescription) ? $discountDescription : $this->bamboraHelper->_s("discount");
         $invoiceDiscount->id = $this->bamboraHelper->_s("discount");
         $invoiceDiscount->linenumber = count($lines) + 1;
         $invoiceDiscount->quantity = 1;
-        $invoiceDiscount->text = $invoice->getDiscountDescription();
+        $invoiceDiscount->text = isset($discountDescription) ? $discountDescription : $this->bamboraHelper->_s("discount");
         $invoiceDiscount->totalprice = $this->bamboraHelper->convertPriceToMinorunits($invoice->getBaseDiscountAmount(), $minorunits, $roundingMode);
         $invoiceDiscount->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($invoice->getBaseDiscountAmount(), $minorunits, $roundingMode);
         $invoiceDiscount->totalpricevatamount = 0;
@@ -612,12 +614,13 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
 
         // Add Shipment
         /** @var Bambora_Online_Model_Api_Checkout_Request_Model_Line */
+        $shippingDescription = $creditMemo->getShippingDescription();
         $invoiceShipping = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
-        $invoiceShipping->description = $creditMemo->getShippingDescription();
+        $invoiceShipping->description = isset($shippingDescription) ? $shippingDescription : $this->bamboraHelper->_s("shipping");
         $invoiceShipping->id = $this->bamboraHelper->_s("shipping");
         $invoiceShipping->linenumber = count($lines) + 1;
         $invoiceShipping->quantity = 1;
-        $invoiceShipping->text = $creditMemo->getShippingDescription();
+        $invoiceShipping->text = isset($shippingDescription) ? $shippingDescription : $this->bamboraHelper->_s("shipping");
         $invoiceShipping->totalprice = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getBaseShippingAmount(), $minorunits, $roundingMode);
         $invoiceShipping->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getShippingInclTax(), $minorunits, $roundingMode);
         $invoiceShipping->totalpricevatamount = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getShippingTaxAmount(), $minorunits, $roundingMode);
@@ -631,12 +634,13 @@ class Bambora_Online_Model_Checkout_Payment extends Mage_Payment_Model_Method_Ab
 
 
         // Add Discount
+        $discountDescription = $creditMemo->getDiscountDescription();
         $invoiceDiscount = Mage::getModel(CheckoutApiModel::REQUEST_MODEL_LINE);
-        $invoiceDiscount->description = $creditMemo->getDiscountDescription();
+        $invoiceDiscount->description = isset($discountDescription) ? $discountDescription : $this->bamboraHelper->_s("discount");
         $invoiceDiscount->id = $this->bamboraHelper->_s("discount");
         $invoiceDiscount->linenumber = count($lines) + 1;
         $invoiceDiscount->quantity = 1;
-        $invoiceDiscount->text = $creditMemo->getDiscountDescription();
+        $invoiceDiscount->text = isset($discountDescription) ? $discountDescription : $this->bamboraHelper->_s("discount");
         $invoiceDiscount->totalprice = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getBaseDiscountAmount(), $minorunits, $roundingMode);
         $invoiceDiscount->totalpriceinclvat = $this->bamboraHelper->convertPriceToMinorunits($creditMemo->getBaseDiscountAmount(), $minorunits, $roundingMode);
         $invoiceDiscount->totalpricevatamount = 0;
