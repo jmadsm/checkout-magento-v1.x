@@ -1,5 +1,5 @@
 <_>
-   <form_key>9ALbwvXixI6Fsaln</form_key>
+   <form_key>ZCQgZMEf2eB1qCNj</form_key>
    <name>Bambora_Online</name>
    <channel>community</channel>
    <version_ids>
@@ -14,9 +14,9 @@ https://www.bambora.com/
 </description>
    <license>Bambora</license>
    <license_uri>https://www.bambora.com/</license_uri>
-   <version>1.4.4</version>
+   <version>1.4.5</version>
    <stability>stable</stability>
-   <notes>* Fix missing invoiceline description when capture or refund 
+   <notes>* Fix for state not being correctly set on order creation
 
 **This and previous releases is tested on Magento v 1.9.x . We can not guarantee that it will work on other versions of Magento. 
 
@@ -35,7 +35,7 @@ https://www.bambora.com/
          <email>support@bambora.com</email>
       </email>
    </authors>
-   <depends_php_min>5.5.0</depends_php_min>
+   <depends_php_min>5.6.0</depends_php_min>
    <depends_php_max>100.0.0</depends_php_max>
    <depends>
       <package>
@@ -52,7 +52,7 @@ https://www.bambora.com/
             <max/>
          </max>
          <files>
-            <files>                                                                                                  </files>
+            <files>                                                                                                   </files>
          </files>
       </package>
       <extension>
@@ -134,4 +134,8 @@ https://www.bambora.com/
          <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>
