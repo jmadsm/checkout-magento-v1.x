@@ -112,8 +112,8 @@ class Bambora_Online_Model_Checkout_Observer
         /** @var Mage_Sales_Model_Order */
         $order = $observer->getOrder();
         if ($this->validatePaymentMethod($order)) {
-            $order->addStatusHistoryComment(Mage::helper('bambora')->_s("The Order is placed using Bambora Checkout and is now awaiting payment."))
-                ->setIsCustomerNotified(false);
+            $comment = Mage::helper('bambora')->_s("The Order is placed using Bambora Checkout and is now awaiting payment.");
+            $order->setState(Mage_Sales_Model_Order::STATE_PENDING_PAYMENT,$order->getStatus(),$comment,false);
             $order->save();
         }
     }
